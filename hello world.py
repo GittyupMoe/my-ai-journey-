@@ -5,10 +5,15 @@
 #    Whatever the user types will be stored in the 'user_name' variable.
 user_name = input("What's your name? ")
 
-# 2. Print a personalized greeting.
-#    We use an f-string (formatted string literal) for easy combining of text and variables.
-#    The variable 'user_name' is placed inside curly braces {}.
-print(f"Hello, {user_name}! Welcome to your AI journey!")
+# 2. Use an if/else statement to check the entered name
+if user_name.lower() == "gittyupmoe": # .lower() makes the comparison case-insensitive
+    # Special message for GittyupMoe
+    print(f"Hey, GittyupMoe! It's an awesome day to learn more about AI.")
+else:
+    # Generic message for any other name
+    print(f"Hey, {user_name}! Have a wonderful day!")
 
-# You can also add another line, for example:
-print("It's great to have you here!")
+# The original welcome message is removed as the above covers the greeting.
+# print(f"Hello, {user_name}! Welcome to your AI journey!")
+# print("It's great to have you here!")
+
