@@ -1,0 +1,1112 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Journey Master Tool: Streamlined Lessons & Combat!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Ensure the entire page body and html are responsive */
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align content to the top */
+            background-image: linear-gradient(to bottom right, #4c008b, #6a0dad, #8a2be2); /* Deep purple gradient */
+            color: #e0e0e0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .main-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0.75rem auto; /* Slightly less vertical margin */
+            padding: 0.5rem; /* Reduced overall padding for small screens */
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem; /* Reduced gap between sections */
+            min-height: 90vh; /* Increased min-height to fill more of the screen */
+            box-sizing: border-box; /* Include padding in width calculation */
+        }
+        @media (min-width: 768px) {
+            .main-container {
+                flex-direction: row;
+                padding: 2rem; /* Restore slightly larger padding on desktop */
+                gap: 1.5rem; /* Restore slightly larger gap on desktop */
+            }
+        }
+
+        /* --- Common Screen Sections Styles --- */
+        .screen-section {
+            width: 100%;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.8rem; /* Adjusted gap inside sections */
+            box-sizing: border-box;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 1.5rem;
+            padding: 0.8rem; /* Reduced padding for smaller screens within sections */
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            flex-grow: 1;
+            overflow-y: auto; /* Allow internal scrolling if content is too tall */
+        }
+        .screen-section.active {
+            display: flex;
+        }
+        .section-title {
+            font-size: 1.6rem; /* Smaller on mobile */
+            font-weight: extrabold;
+            color: #fca5a5;
+            margin-bottom: 0.6rem;
+            text-align: center;
+        }
+        @media (min-width: 768px) {
+            .section-title {
+                font-size: 2.2rem; /* Larger on desktop */
+                margin-bottom: 0.8rem;
+            }
+        }
+
+        /* --- Global Paragraph Sizing for Intro/Explanations --- */
+        .intro-paragraph {
+            max-width: 95%; /* Take more width on very small screens */
+            font-size: 0.85rem; /* Smaller default font */
+            line-height: 1.4;
+            margin-bottom: 0.8rem;
+        }
+        @media (min-width: 640px) { /* sm breakpoint */
+            .intro-paragraph {
+                max-width: 85%;
+                font-size: 0.95rem;
+            }
+        }
+        @media (min-width: 768px) { /* md breakpoint */
+            .intro-paragraph {
+                max-width: 500px; /* Specific max-width for desktop */
+                font-size: 1rem;
+            }
+        }
+
+        /* --- GittyupMoe Intro Box --- */
+        #gittyupmoe-intro-box {
+            background-color: rgba(138, 43, 226, 0.3); /* Purple tint */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0.75rem;
+            padding: 0.6rem;
+            text-align: center;
+            margin-bottom: 0.8rem; /* Space below it */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        #gittyupmoe-intro-box p {
+            font-size: 0.8rem;
+            line-height: 1.3;
+            margin: 0;
+            opacity: 0.9;
+        }
+        @media (min-width: 640px) {
+            #gittyupmoe-intro-box {
+                padding: 0.8rem;
+            }
+            #gittyupmoe-intro-box p {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* --- Lessons Section (Previous Quest Log) --- */
+        #lessons-screen {
+            display: flex; /* Overridden by .screen-section.active */
+            flex-direction: column;
+        }
+        .lessons-sidebar {
+            flex-shrink: 0;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-radius: 1.5rem;
+            padding: 0.6rem; /* Reduced padding */
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+            margin-bottom: 0.6rem; /* Space between sidebar and content on small screens */
+        }
+        @media (min-width: 768px) {
+            #lessons-screen {
+                flex-direction: row;
+            }
+            .lessons-sidebar {
+                width: 280px; /* Slightly narrower sidebar */
+                margin-right: 1.5rem; /* Adjusted margin */
+                margin-bottom: 0;
+            }
+        }
+        .quest-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.5rem; /* Further adjusted padding */
+            border-radius: 0.75rem;
+            margin-bottom: 0.3rem; /* Adjusted margin */
+            background-color: rgba(0, 0, 0, 0.2);
+            color: #e0e0e0;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.8rem; /* Smaller font for list items */
+        }
+        .quest-item:hover {
+            background-color: rgba(0, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+        .quest-item.active-lesson {
+            background-color: #8a2be2;
+            border-color: #f0f0f0;
+            box-shadow: 0 0 15px rgba(138, 43, 226, 0.7);
+            transform: scale(1.02);
+        }
+        .quest-item .level-icon {
+            font-size: 1rem; /* Slightly smaller icon */
+            margin-right: 0.3rem;
+        }
+        .simulated-terminal {
+            background-color: #1a202c;
+            color: #4CAF50;
+            border-radius: 0.75rem;
+            padding: 0.7rem; /* Reduced padding */
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem; /* Slightly smaller font */
+            max-height: 180px; /* Reduced max-height */
+            overflow-y: auto;
+            box-shadow: inset 0 0 8px rgba(0,0,0,0.4);
+            border: 1px solid #333;
+        }
+        .terminal-output {
+            white-space: pre-wrap;
+        }
+        .terminal-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.3rem; /* Reduced gap */
+            margin-top: 0.5rem; /* Adjusted margin */
+        }
+        .terminal-input {
+            flex-grow: 1;
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+            color: #f7fafc;
+            padding: 0.3rem 0.5rem; /* Reduced padding */
+            border-radius: 0.5rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            min-width: 90px; /* Ensure input isn't too small */
+        }
+        .terminal-button {
+            background-color: #6a0dad;
+            color: white;
+            padding: 0.3rem 0.7rem; /* Reduced padding */
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.8rem; /* Reduced font size */
+        }
+        .terminal-button:hover {
+            background-color: #8a2be2;
+        }
+        .quiz-option {
+            background-color: rgba(0, 0, 0, 0.2);
+            padding: 0.4rem 0.6rem; /* Further adjusted padding */
+            border-radius: 0.75rem;
+            margin-bottom: 0.25rem; /* Further adjusted margin */
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            text-align: left;
+            font-size: 0.85rem; /* Further adjusted font size */
+        }
+        .quiz-option:hover {
+            background-color: rgba(0, 0, 0, 0.4);
+            transform: translateY(-2px);
+        }
+        .quiz-option.correct-lesson {
+            background-color: #4CAF50;
+            border-color: #2e7d32;
+        }
+        .quiz-option.incorrect-lesson {
+            background-color: #F44336;
+            border-color: #d32f2f;
+        }
+        .quiz-feedback {
+            margin-top: 0.3rem;
+            font-weight: bold;
+            text-align: center;
+            font-size: 0.85rem; /* Adjusted font size */
+        }
+
+        /* --- Game Screens (Intro removed, Map is now primary game entry) --- */
+        .game-screen {
+            text-align: center;
+            justify-content: center;
+            padding: 0.8rem; /* Reduced padding for game screens */
+            flex-grow: 1;
+        }
+        .game-screen button {
+            padding: 0.4rem 1rem; /* Adjusted padding */
+            font-size: 0.9rem; /* Adjusted font size */
+        }
+        @media (min-width: 768px) {
+            .game-screen button {
+                padding: 0.6rem 1.5rem;
+                font-size: 1rem;
+            }
+        }
+
+
+        #game-world-map-screen {
+            display: grid; /* Overridden by JS display:flex for screen-section.active */
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); /* Further adjusted min-width for cards */
+            gap: 0.6rem; /* Reduced gap */
+            padding: 0.6rem; /* Reduced padding */
+            justify-items: center;
+        }
+        /* Styling for the intro text at the top of the game map */
+        #game-map-intro-text {
+            margin-bottom: 0.8rem;
+            text-align: center;
+            opacity: 0.9;
+            font-size: 0.85rem; /* Smaller font for game map intro */
+        }
+        @media (min-width: 640px) {
+            #game-map-intro-text {
+                font-size: 0.95rem;
+                margin-bottom: 1.2rem;
+            }
+        }
+        @media (min-width: 768px) {
+            #game-map-intro-text {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        .quest-card {
+            background-color: rgba(0, 0, 0, 0.3);
+            border-radius: 1.2rem; /* Slightly smaller border-radius */
+            padding: 0.7rem; /* Reduced padding */
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+        }
+        .quest-card:hover:not(.locked) {
+            background-color: rgba(0, 0, 0, 0.5);
+            transform: translateY(-4px) scale(1.04); /* Smaller hover effect */
+            border-color: #f0f0f0;
+        }
+        .quest-card.locked {
+            filter: grayscale(80%);
+            opacity: 0.6;
+            cursor: not-allowed;
+            border-style: dashed;
+        }
+        .quest-card.unlocked .prize-emoji {
+            opacity: 1;
+            font-size: 1.6rem; /* Consistent prize emoji size */
+            margin-top: 0.5rem;
+        }
+        .quest-card.locked .lock-icon {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            font-size: 1.1rem; /* Smaller lock icon */
+            color: #ccc;
+        }
+        .quest-card-icon {
+            font-size: 2.2rem; /* Smaller icon */
+            margin-bottom: 0.15rem;
+            transition: transform 0.3s ease-out;
+        }
+        .quest-card h3 {
+            font-size: 1rem; /* Smaller title */
+            font-weight: bold;
+            color: #fca5a5;
+            margin-bottom: 0.25rem;
+        }
+        .quest-card p {
+            font-size: 0.7rem; /* Smaller concept text */
+            color: #cbd5e0;
+        }
+        .prize-emoji {
+            font-size: 1.4rem; /* Adjusted prize emoji size */
+            margin-top: 0.3rem;
+            opacity: 0.4;
+            transition: opacity 0.5s;
+        }
+
+        /* --- BATTLE ARENA SPECIFIC STYLES --- */
+        #game-battle-arena-screen {
+            padding: 0.7rem; /* Further reduced padding for very small screens in battle */
+        }
+        .player-health {
+            font-size: 1.3rem; /* Even smaller hearts for battle */
+            margin-bottom: 0.3rem;
+        }
+        .enemy-display {
+            font-size: 2.8rem; /* Even smaller enemy emoji for battle */
+            margin-bottom: 0.3rem;
+        }
+        #game-battle-question-number {
+            font-size: 0.95rem; /* Smallest question number */
+            margin-top: 0.3rem;
+            margin-bottom: 0.3rem;
+        }
+        #game-battle-question {
+            font-size: 1rem; /* Smallest question text */
+            margin-bottom: 0.7rem;
+        }
+        @media (min-width: 768px) {
+            #game-battle-arena-screen {
+                padding: 1.2rem; /* Reduced slightly for desktop */
+            }
+            .player-health {
+                font-size: 2rem; /* Larger hearts on desktop */
+                margin-bottom: 0.8rem;
+            }
+            .enemy-display {
+                font-size: 4.5rem; /* Larger enemy on desktop */
+                margin-bottom: 0.8rem;
+            }
+            #game-battle-question-number {
+                font-size: 1.2rem;
+            }
+            #game-battle-question {
+                font-size: 1.4rem;
+            }
+        }
+
+        .battle-options-container {
+            gap: 0.3rem; /* Reduced gap */
+            width: 100%; /* Take full width on small screens */
+            max-width: 450px; /* Constrain max width for desktop */
+        }
+        .battle-option {
+            padding: 0.3rem 0.5rem; /* Reduced padding */
+            font-size: 0.85rem; /* Reduced font size */
+        }
+        #battle-feedback {
+            font-size: 0.9rem; /* Reduced font size */
+            margin-top: 0.5rem;
+        }
+        .battle-buttons button {
+            padding: 0.3rem 0.7rem; /* Smallest buttons in battle */
+            font-size: 0.8rem; /* Smallest button text */
+            margin: 0.3rem 0.15rem; /* Reduced margin */
+        }
+        @media (min-width: 768px) {
+            .battle-buttons button {
+                padding: 0.6rem 1.2rem;
+                font-size: 1rem;
+                margin: 0.8rem 0.4rem;
+            }
+        }
+
+        #game-result-screen {
+            padding: 1.2rem; /* Reduced for result screen */
+        }
+        #game-result-screen .result-message {
+            font-size: 1.6rem; /* Smaller result message */
+            margin-bottom: 0.6rem;
+        }
+        @media (min-width: 768px) {
+            #game-result-screen .result-message {
+                font-size: 2.2rem;
+            }
+        }
+        #game-result-screen .prize-display {
+            font-size: 3rem; /* Slightly smaller prize emoji */
+            margin-bottom: 0.8rem;
+        }
+
+        /* Lesson Details Info (reused for explanation within battle flow if needed) */
+        .lesson-details-info {
+            padding: 0.6rem; /* Further reduced padding */
+            margin-top: 0.6rem;
+            max-width: 450px; /* Smaller max-width */
+        }
+        .lesson-details-info h3 {
+            font-size: 1rem; /* Reduced font size */
+            margin-bottom: 0.4rem;
+        }
+        .lesson-details-info p {
+            margin-bottom: 0.25rem;
+            font-size: 0.8rem;
+        }
+        .lesson-details-info pre {
+            padding: 0.5rem;
+            max-height: 100px; /* Reduced max-height for code display in battle */
+            font-size: 0.7rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+
+        <!-- Lessons Screen (from AI Journey Quest Log) -->
+        <div id="lessons-screen" class="screen-section active">
+            <h1 class="section-title">AI Journey: Learning Hub</h1>
+
+            <!-- GittyupMoe Intro Box -->
+            <div id="gittyupmoe-intro-box" class="w-full max-w-sm sm:max-w-md md:max-w-lg">
+                <p><strong>👋 GittyupMoe, your AI Mentor, here!</strong> This is your Learning Hub. Select a concept on the left to learn. Once you feel ready, click "Go to Code Combat Challenge!" to test your skills!</p>
+            </div>
+
+            <div class="lessons-sidebar">
+                <h2 class="text-lg sm:text-xl font-bold mb-3 sm:mb-4 text-center text-purple-200">Concept Quests</h2>
+                <div id="lesson-quest-list">
+                    <!-- Lesson quests will be loaded here by JavaScript -->
+                </div>
+                <button id="goto-game-btn" class="terminal-button w-full mt-3 sm:mt-4 bg-pink-600 hover:bg-pink-700">Go to Code Combat Challenge!</button>
+            </div>
+
+            <div class="flex-grow flex flex-col items-center px-1 sm:px-4">
+                <h2 class="text-xl sm:text-3xl font-extrabold text-purple-200 mb-3 sm:mb-4 text-center" id="lesson-title">
+                    Welcome to Your Learning Hub!
+                </h2>
+                <!-- Adjusted intro paragraph using a new class -->
+                <p class="intro-paragraph text-center opacity-80 mb-3 sm:mb-4" id="lesson-intro">
+                    Select a concept from the left sidebar to dive into detailed explanations and interactive code. Master the basics, then test your skills in the Code Combat Challenge! ✨
+                </p>
+
+                <div id="lesson-details" class="hidden w-full max-w-2xl">
+                    <h3 class="text-base sm:text-xl font-semibold mb-2 sm:mb-3 text-purple-300" id="lesson-detail-title"></h3>
+                    <div class="text-sm sm:text-base mb-3 sm:mb-4 leading-relaxed opacity-90" id="lesson-detail-explanation"></div>
+
+                    <!-- Code Section for Lessons -->
+                    <div id="lesson-code-section" class="bg-gray-800 p-2 sm:p-3 rounded-xl shadow-lg mb-3 sm:mb-4 hidden">
+                        <h4 class="text-sm sm:text-lg font-bold mb-1.5 sm:mb-2 text-blue-300">Code Playground</h4>
+                        <p class="text-xs opacity-80 mb-1.5 sm:mb-2">Type your input in the box and click 'Run Code' to see the Python magic!</p>
+                        <pre class="bg-gray-900 text-gray-200 p-1.5 rounded-lg overflow-x-auto text-xs" id="lesson-code-display"></pre>
+                        <div class="simulated-terminal">
+                            <div class="terminal-output" id="lesson-terminal-output"></div>
+                            <div class="terminal-input-container">
+                                <span class="text-green-400 text-xs">>>></span> <input type="text" id="lesson-terminal-input" class="terminal-input" placeholder="Type here...">
+                                <button id="lesson-run-code-btn" class="terminal-button">Run Code</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Challenge Section for Lessons -->
+                    <div id="lesson-challenge-section" class="bg-purple-800 bg-opacity-40 p-2 sm:p-3 rounded-xl shadow-lg hidden">
+                        <h4 class="text-sm sm:text-lg font-bold mb-1.5 sm:mb-2 text-pink-300">Knowledge Check!</h4>
+                        <p class="text-xs sm:text-sm mb-2 sm:mb-3 leading-relaxed" id="lesson-challenge-question"></p>
+                        <div id="lesson-quiz-options" class="grid grid-cols-1 md:grid-cols-2 gap-1 sm:gap-2 mb-1.5 sm:mb-2">
+                            <!-- Quiz options generated here -->
+                        </div>
+                        <div id="lesson-quiz-feedback" class="quiz-feedback text-xs sm:text-sm"></div>
+                        <button id="lesson-submit-quiz-btn" class="terminal-button w-full mt-2 sm:mt-3 bg-pink-600 hover:bg-pink-700">Submit Answer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game World Map Screen (Now acts as the main game intro) -->
+        <div id="game-world-map-screen" class="screen-section game-screen">
+            <h2 class="section-title">AI Journey: Code Combat Challenge!</h2>
+            <!-- Updated intro paragraph for the game map -->
+            <p class="intro-paragraph text-center opacity-80 mb-4" id="game-map-intro-text">
+                Prepare for battle! Each quest below is a combat challenge to test your understanding. Defeat the enemies by answering questions correctly, earn your prize, and unlock the next level of knowledge!
+            </p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 w-full max-w-4xl" id="game-quest-cards-container">
+                <!-- Quest cards will be dynamically loaded here -->
+            </div>
+            <button id="back-to-lessons-from-map-btn" class="mt-3 sm:mt-4 bg-gray-500 hover:bg-gray-600">Back to Learning Hub</button>
+        </div>
+
+        <!-- Game Battle Arena Screen -->
+        <div id="game-battle-arena-screen" class="screen-section game-screen">
+            <h2 class="text-xl sm:text-3xl font-extrabold text-purple-200 mb-3 sm:mb-4" id="game-battle-quest-title"></h2>
+
+            <div class="flex items-center justify-between w-full max-w-xl mb-3 sm:mb-4">
+                <div class="text-left">
+                    <p class="text-base sm:text-lg font-semibold text-purple-300">Your Health:</p>
+                    <div class="player-health" id="game-player-health-display"></div>
+                </div>
+                <div class="text-right">
+                    <p class="text-base sm:text-lg font-semibold text-purple-300">Enemy:</p>
+                    <div class="enemy-display" id="game-enemy-icon"></div>
+                </div>
+            </div>
+
+            <div class="lesson-details-info w-full max-w-2xl hidden" id="game-battle-explanation-container">
+                <h3 id="game-battle-detail-title"></h3>
+                <div id="game-battle-detail-explanation"></div>
+                <pre id="game-battle-code-display" class="hidden"></pre>
+            </div>
+
+            <p class="text-base sm:text-xl font-bold mt-3 sm:mt-4 mb-2 sm:mb-3" id="game-battle-question-number"></p>
+            <p class="text-lg sm:text-2xl" id="game-battle-question"></p>
+            <div class="battle-options-container" id="game-battle-options">
+                <!-- Battle options generated here -->
+            </div>
+            <div id="game-battle-feedback"></div>
+
+            <div class="battle-buttons">
+                <button id="game-submit-answer-btn">Submit Answer</button>
+                <button id="game-next-question-btn" class="hidden">Next Question</button>
+                <button id="game-back-to-map-btn" class="hidden">Back to Map</button>
+            </div>
+        </div>
+
+        <!-- Game Result Screen -->
+        <div id="game-result-screen" class="screen-section game-screen">
+            <h2 class="result-message" id="game-result-message"></h2>
+            <p class="prize-display" id="game-prize-emoji"></p>
+            <p class="text-base sm:text-lg opacity-90 mb-4 sm:mb-6" id="game-result-details"></p>
+            <button id="game-return-to-map-btn">Return to Code Combat Map</button>
+            <button id="back-to-lessons-from-game-result-btn" class="mt-3 sm:mt-4 bg-gray-500 hover:bg-gray-600">Back to Learning Hub</button>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA: Centralized Quest Definitions (ONLY 3) ---
+        const quests = [
+            {
+                id: 'q1-python-basics',
+                category: 'Python',
+                icon: '🐍',
+                title: 'Quest 1: Python Basics',
+                concept: 'Variables & Input',
+                explanation: `Variables are labeled boxes for data. 'input()' gets user data. 'print()' shows messages. F-strings combine text and variables easily.`,
+                codeSnippet: `
+# Get name & say hello!
+your_name = input("What's your name? ")
+print(f"Hello, {your_name}! Welcome to Python!")
+                `,
+                enemyIcon: '🐍',
+                prizeEmoji: '🐍',
+                battleQuestions: [
+                    { question: "What is a 'variable' in Python?", options: ["A type of error", "A built-in function", "A labeled box to store information", "A command to stop the program"], correctAnswer: "A labeled box to store information" },
+                    { question: "Which function is used to get input from the user?", options: ["output()", "get()", "display()", "input()"], correctAnswer: "input()" },
+                    { question: "How do you show a message on the screen in Python?", options: ["display()", "print()", "show()", "write()"], correctAnswer: "print()" },
+                    { question: "What is an f-string primarily used for?", options: ["Defining a function", "Combining text and variable values easily", "Performing mathematical operations", "Creating loops"], correctAnswer: "Combining text and variable values easily" },
+                    { question: "If 'name = input(\"Enter your name:\")', what will 'name' store?", options: ["The word 'name'", "The text the user types", "A number", "Always 'Enter your name:'"], correctAnswer: "The text the user types" },
+                    { question: "Which symbol is used to create an f-string?", options: ["@", "#", "f", "$"], correctAnswer: "f" }
+                ],
+                 lessonChallenge: {
+                    question: "Which function is used to display output to the user?",
+                    options: ["input()", "show()", "print()", "get()"],
+                    correctAnswer: "print()"
+                }
+            },
+            {
+                id: 'q2-control-flow-if-else',
+                category: 'Python',
+                icon: '🚦',
+                title: 'Quest 2: Control Flow (if/else)',
+                concept: 'Making Decisions',
+                explanation: `Control flow lets programs make choices. 'if' checks a condition (True/False). If true, its code runs. 'else' runs if 'if' is false.`,
+                codeSnippet: `
+# Check if a number is positive
+number = int(input("Enter a number: "))
+
+if number > 0:
+    print("Positive!")
+else:
+    print("Not positive.")
+                `,
+                enemyIcon: '🤖',
+                prizeEmoji: '✅',
+                battleQuestions: [
+                    { question: "What is the main purpose of an 'if' statement?", options: ["To define a new variable", "To repeat a block of code", "To make a decision based on a condition", "To print output to the console"], correctAnswer: "To make a decision based on a condition" },
+                    { question: "A condition inside an 'if' statement must evaluate to what?", options: ["A number", "A string", "True or False", "A list"], correctAnswer: "True or False" },
+                    { question: "When does the code inside an 'else' block run?", options: ["Always runs", "When the 'if' condition is TRUE", "When the 'if' condition is FALSE", "Only if there's an error"], correctAnswer: "When the 'if' condition is FALSE" },
+                    { question: "Which of these is a comparison operator?", options: ["=", "+", "==", "-"], correctAnswer: "==" },
+                    { question: "What ends an 'if' or 'else' line in Python?", options: ["A semicolon (;)", "A period (.)", "A colon (:)", "A comma (,)"], correctAnswer: "A colon (:)" },
+                    { question: "If 'age = 10', what is the result of 'age >= 18'?", options: ["True", "False", "18", "Error"], correctAnswer: "False" }
+                ],
+                lessonChallenge: {
+                    question: "What does an 'else' block do in an 'if/else' statement?",
+                    options: ["It always runs, no matter what.", "It runs if the 'if' condition is FALSE.", "It creates a new variable.", "It stops the program."],
+                    correctAnswer: "It runs if the 'if' condition is FALSE."
+                }
+            },
+            {
+                id: 'q3-git-basics', // Renamed from q4 and updated to Quest 3
+                category: 'Git/GitHub',
+                icon: '🐙',
+                title: 'Quest 3: Git & GitHub',
+                concept: 'Version Control!',
+                explanation: `Git tracks code changes (infinite undo). GitHub stores Git projects online for backup & sharing. 'git pull --allow-unrelated-histories' combines different project starts. 'CONFLICT' means Git needs your help to choose between clashing changes.`,
+                codeSnippet: `
+# Git tracks changes in files like this README.md
+This is my project.
+It tracks changes with Git!
+                `,
+                enemyIcon: '👹',
+                prizeEmoji: '🔗',
+                battleQuestions: [
+                    { question: "What is Git primarily used for?", options: ["Sending emails", "Playing games", "Tracking changes to code", "Drawing pictures"], correctAnswer: "Tracking changes to code" },
+                    { question: "What is GitHub?", options: ["A type of programming language", "A website to store Git projects online and collaborate", "A video game", "A text editor"], correctAnswer: "A website to store Git projects online and collaborate" },
+                    { question: "What does 'git pull' usually do?", options: ["Pushes your local changes to GitHub", "Deletes files from your project", "Downloads changes from GitHub to your local computer", "Creates a new repository"], correctAnswer: "Downloads changes from GitHub to your local computer" },
+                    { question: "What is a 'conflict' in Git?", options: ["When two files have the same name", "When Git can't decide which changes to keep in a merge", "When your computer runs out of battery", "When your code runs perfectly"], correctAnswer: "When Git can't decide which changes to keep in a merge" },
+                    { question: "What does '--allow-unrelated-histories' help with during a 'git pull'?", options: ["Ignoring all errors", "Combining projects that started separately", "Making Git run faster", "Deleting old commit history"], correctAnswer: "Combining projects that started separately" },
+                    { question: "If you want to save changes to your local Git repository, what command do you use after 'git add'?", options: ["git push", "git clone", "git commit", "git status"], correctAnswer: "git commit" }
+                ],
+                lessonChallenge: {
+                    question: "What is GitHub primarily used for?",
+                    options: ["Sending emails", "Playing games", "Storing Git projects online and collaborating", "Drawing pictures"],
+                    correctAnswer: "Storing Git projects online and collaborating"
+                }
+            }
+        ];
+
+        // --- GLOBAL UI ELEMENTS ---
+        const lessonsScreen = document.getElementById('lessons-screen');
+        const lessonQuestListDiv = document.getElementById('lesson-quest-list');
+        const lessonTitleElem = document.getElementById('lesson-title');
+        const lessonIntroElem = document.getElementById('lesson-intro');
+        const lessonDetailsDiv = document.getElementById('lesson-details');
+        const lessonDetailTitleElem = document.getElementById('lesson-detail-title');
+        const lessonDetailExplanationElem = document.getElementById('lesson-detail-explanation');
+        const lessonCodeSection = document.getElementById('lesson-code-section');
+        const lessonCodeDisplay = document.getElementById('lesson-code-display');
+        const lessonTerminalOutput = document.getElementById('lesson-terminal-output');
+        const lessonTerminalInput = document.getElementById('lesson-terminal-input');
+        const lessonRunCodeBtn = document.getElementById('lesson-run-code-btn');
+        const lessonChallengeSection = document.getElementById('lesson-challenge-section');
+        const lessonChallengeQuestionElem = document.getElementById('lesson-challenge-question');
+        const lessonQuizOptionsDiv = document.getElementById('lesson-quiz-options');
+        const lessonQuizFeedbackElem = document.getElementById('lesson-quiz-feedback');
+        const lessonSubmitQuizBtn = document.getElementById('lesson-submit-quiz-btn');
+
+        const gotoGameBtn = document.getElementById('goto-game-btn');
+
+
+        // --- GAME UI ELEMENTS ---
+        const gameWorldMapScreen = document.getElementById('game-world-map-screen');
+        const gameQuestCardsContainer = document.getElementById('game-quest-cards-container');
+        const gameBattleArenaScreen = document.getElementById('game-battle-arena-screen');
+        const gameBattleQuestTitle = document.getElementById('game-battle-quest-title');
+        const gamePlayerHealthDisplay = document.getElementById('game-player-health-display');
+        const gameEnemyIcon = document.getElementById('game-enemy-icon');
+        const gameBattleQuestionNumber = document.getElementById('game-battle-question-number');
+        const gameBattleQuestion = document.getElementById('game-battle-question');
+        const gameBattleOptions = document.getElementById('game-battle-options');
+        const gameBattleFeedback = document.getElementById('game-battle-feedback');
+        const gameSubmitAnswerBtn = document.getElementById('game-submit-answer-btn');
+        const gameNextQuestionBtn = document.getElementById('game-next-question-btn');
+        const gameBackToMapBtn = document.getElementById('game-back-to-map-btn');
+        const gameResultScreen = document.getElementById('game-result-screen');
+        const gameResultMessage = document.getElementById('game-result-message');
+        const gamePrizeEmojiDisplay = document.getElementById('game-prize-emoji');
+        const gameResultDetails = document.getElementById('game-result-details');
+        const gameReturnToMapBtn = document.getElementById('game-return-to-map-btn');
+
+        const gameBattleExplanationContainer = document.getElementById('game-battle-explanation-container');
+        const gameBattleDetailTitle = document.getElementById('game-battle-detail-title');
+        const gameBattleDetailExplanation = document.getElementById('game-battle-detail-explanation');
+        const gameBattleCodeDisplay = document.getElementById('game-battle-code-display');
+
+        const backToLessonsFromMapBtn = document.getElementById('back-to-lessons-from-map-btn');
+        const backToLessonsFromGameResultBtn = document.getElementById('back-to-lessons-from-game-result-btn');
+
+
+        // --- GAME STATE VARIABLES ---
+        let currentPlayerHealth = 3;
+        let questionsAnsweredCorrectlyInBattle = 0;
+        let currentBattleQuestions = [];
+        let currentQuestionIndex = 0;
+        let selectedBattleOption = null;
+        let activeGameQuest = null;
+        const correctAnswersNeeded = 3;
+
+
+        // --- LESSON STATE VARIABLES ---
+        let currentLessonQuest = null;
+        let selectedLessonQuizOption = null;
+
+        // --- PERSISTENT STORAGE FOR UNLOCKED QUESTS ---
+        let unlockedQuests = JSON.parse(localStorage.getItem('unlockedQuests')) || {};
+        const updatedUnlockedQuests = {};
+        quests.forEach(quest => {
+            if (quest.id === 'q1-python-basics') {
+                updatedUnlockedQuests[quest.id] = true;
+            } else if (unlockedQuests[quest.id] !== undefined) {
+                 updatedUnlockedQuests[quest.id] = unlockedQuests[quest.id];
+            } else {
+                 updatedUnlockedQuests[quest.id] = false;
+            }
+        });
+        unlockedQuests = updatedUnlockedQuests;
+        localStorage.setItem('unlockedQuests', JSON.stringify(unlockedQuests));
+
+
+        // --- Helper Functions ---
+        function showScreen(screenElem) {
+            document.querySelectorAll('.screen-section').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            screenElem.classList.add('active');
+            screenElem.scrollTop = 0;
+            document.body.scrollTop = 0;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // --- LESSONS LOGIC ---
+        function loadLessonQuests() {
+            lessonQuestListDiv.innerHTML = '';
+            quests.forEach(quest => {
+                const questItem = document.createElement('div');
+                questItem.classList.add('quest-item');
+                questItem.id = `lesson-quest-${quest.id}`;
+                questItem.innerHTML = `
+                    <span class="level-icon">${quest.icon}</span>
+                    <div>
+                        <div class="font-bold">${quest.title}</div>
+                        <div class="text-sm opacity-75">${quest.concept}</div>
+                    </div>
+                `;
+                questItem.addEventListener('click', () => displayLessonQuest(quest.id));
+                lessonQuestListDiv.appendChild(questItem);
+            });
+        }
+
+        function displayLessonQuest(questId) {
+            currentLessonQuest = quests.find(q => q.id === questId);
+
+            document.querySelectorAll('.quest-item').forEach(item => {
+                item.classList.remove('active-lesson');
+            });
+            document.getElementById(`lesson-quest-${questId}`).classList.add('active-lesson');
+
+            lessonIntroElem.classList.add('hidden');
+            lessonTitleElem.textContent = `Concept: ${currentLessonQuest.title}`;
+            lessonDetailsDiv.classList.remove('hidden');
+
+            lessonDetailTitleElem.textContent = `Concept: ${currentLessonQuest.concept}`;
+            lessonDetailExplanationElem.innerHTML = currentLessonQuest.explanation.trim().split('\n').map(p => `<p class="mb-2">${p.trim()}</p>`).join('');
+
+            if (currentLessonQuest.codeSnippet) {
+                lessonCodeSection.classList.remove('hidden');
+                lessonCodeDisplay.textContent = currentLessonQuest.codeSnippet.trim();
+                lessonTerminalOutput.textContent = '';
+                lessonTerminalInput.value = '';
+                lessonTerminalInput.placeholder = currentLessonQuest.interactiveExample?.prompt || "Enter input...";
+                lessonRunCodeBtn.onclick = () => runSimulatedLessonCode(currentLessonQuest);
+
+                if (currentLessonQuest.interactiveExample?.type === 'debug') {
+                    lessonTerminalOutput.textContent = `🐛 Bug hunting time! 🐛\n\nThis code has an error. Try to spot it before you type anything. When you're ready, type some input (e.g., your name) and click 'Run Code' to see the Python error message in action.\n\nHint: ${currentLessonQuest.interactiveExample.hint}`;
+                } else if (currentLessonQuest.interactiveExample?.type === 'text') {
+                    lessonTerminalOutput.textContent = `💡 Exercise: ${currentLessonQuest.interactiveExample.prompt}\n\nExpected Output: ${currentLessonQuest.interactiveExample.expectedOutput}`;
+                    lessonTerminalInput.disabled = true;
+                    lessonRunCodeBtn.disabled = true;
+                } else {
+                    lessonTerminalInput.disabled = false;
+                    lessonRunCodeBtn.disabled = false;
+                }
+            } else {
+                lessonCodeSection.classList.add('hidden');
+            }
+
+            if (currentLessonQuest.lessonChallenge) {
+                lessonChallengeSection.classList.remove('hidden');
+                lessonChallengeQuestionElem.textContent = currentLessonQuest.lessonChallenge.question;
+                lessonQuizOptionsDiv.innerHTML = '';
+                lessonQuizFeedbackElem.textContent = '';
+                lessonSubmitQuizBtn.classList.remove('hidden');
+
+                currentLessonQuest.lessonChallenge.options.forEach(option => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.classList.add('quiz-option');
+                    optionDiv.textContent = option;
+                    optionDiv.addEventListener('click', () => selectLessonQuizOption(optionDiv));
+                    lessonQuizOptionsDiv.appendChild(optionDiv);
+                });
+            } else {
+                lessonChallengeSection.classList.add('hidden');
+            }
+        }
+
+        function runSimulatedLessonCode(quest) {
+            const inputVal = lessonTerminalInput.value.trim();
+            lessonTerminalOutput.textContent = '';
+
+            let output = '';
+
+            if (quest.id === 'q1-python-basics') {
+                output = `Hello, ${inputVal}! Welcome to Python!`;
+            } else if (quest.id === 'q2-control-flow-if-else') {
+                const number = parseInt(inputVal);
+                if (isNaN(number)) {
+                    output = "Invalid input. Please enter a number.";
+                } else if (number > 0) {
+                    output = "This number is positive!";
+                } else {
+                    output = "This number is not positive (it's zero or negative).";
+                }
+            } else if (quest.id === 'q3-git-basics') {
+                output = `Understanding Git is key for modern coding!`;
+            }
+            lessonTerminalOutput.textContent = output;
+            lessonTerminalInput.value = '';
+        }
+
+        function selectLessonQuizOption(optionDiv) {
+            if (selectedLessonQuizOption) {
+                selectedLessonQuizOption.classList.remove('border-2', 'border-white');
+            }
+            selectedLessonQuizOption = optionDiv;
+            selectedLessonQuizOption.classList.add('border-2', 'border-white');
+            lessonQuizFeedbackElem.textContent = '';
+            document.querySelectorAll('.quiz-option').forEach(opt => {
+                opt.classList.remove('correct-lesson', 'incorrect-lesson');
+            });
+        }
+
+        function submitLessonQuizAnswer() {
+            if (!selectedLessonQuizOption) {
+                lessonQuizFeedbackElem.textContent = "Please select an answer!";
+                lessonQuizFeedbackElem.style.color = '#F44336';
+                return;
+            }
+
+            const isCorrect = selectedLessonQuizOption.textContent === currentLessonQuest.lessonChallenge.correctAnswer;
+
+            if (isCorrect) {
+                lessonQuizFeedbackElem.textContent = "🎉 Correct! You've mastered this concept!";
+                lessonQuizFeedbackElem.style.color = '#4CAF50';
+                selectedLessonQuizOption.classList.add('correct-lesson');
+            } else {
+                lessonQuizFeedbackElem.textContent = "😔 Not quite. Review the explanation and try again!";
+                lessonQuizFeedbackElem.style.color = '#F44336';
+                selectedLessonQuizOption.classList.add('incorrect-lesson');
+                document.querySelectorAll('.quiz-option').forEach(opt => {
+                    if (opt.textContent === currentLessonQuest.lessonChallenge.correctAnswer) {
+                        opt.classList.add('correct-lesson');
+                    }
+                });
+            }
+            lessonSubmitQuizBtn.classList.add('hidden');
+        }
+
+
+        // --- GAME LOGIC ---
+
+        function updateGamePlayerHealthDisplay() {
+            gamePlayerHealthDisplay.textContent = '❤️'.repeat(currentPlayerHealth);
+        }
+
+        function populateGameWorldMap() {
+            gameQuestCardsContainer.innerHTML = '';
+            quests.forEach(quest => {
+                const isLocked = !unlockedQuests[quest.id];
+                const card = document.createElement('div');
+                card.id = `game-quest-card-${quest.id}`;
+                card.classList.add('quest-card', isLocked ? 'locked' : 'unlocked');
+                card.innerHTML = `
+                    <div class="quest-card-icon">${quest.icon}</div>
+                    <h3 class="mt-2">${quest.title.split(': ')[1] || quest.title}</h3>
+                    <p>${quest.concept}</p>
+                    <div class="prize-emoji">${unlockedQuests[quest.id] ? quest.prizeEmoji : '❓'}</div>
+                    ${isLocked ? '<span class="lock-icon">🔒</span>' : ''}
+                `;
+                if (!isLocked) {
+                    card.addEventListener('click', () => startBattle(quest.id));
+                }
+                gameQuestCardsContainer.appendChild(card);
+            });
+        }
+
+        function startBattle(questId) {
+            activeGameQuest = quests.find(q => q.id === questId);
+            if (!activeGameQuest) return;
+
+            gameBattleQuestTitle.textContent = `Quest: ${activeGameQuest.title}`;
+
+            gameBattleExplanationContainer.classList.remove('hidden');
+            gameBattleDetailTitle.textContent = `Concept: ${activeGameQuest.concept}`;
+            gameBattleDetailExplanation.innerHTML = activeGameQuest.explanation.trim().split('\n').map(p => `<p class="mb-2">${p.trim()}</p>`).join('');
+            if (activeGameQuest.codeSnippet) {
+                gameBattleCodeDisplay.classList.remove('hidden');
+                gameBattleCodeDisplay.textContent = activeGameQuest.codeSnippet.trim();
+            } else {
+                gameBattleCodeDisplay.classList.add('hidden');
+            }
+
+            currentPlayerHealth = 3;
+            questionsAnsweredCorrectlyInBattle = 0;
+            currentQuestionIndex = 0;
+            currentBattleQuestions = shuffleArray([...activeGameQuest.battleQuestions]);
+
+            updateGamePlayerHealthDisplay();
+            gameEnemyIcon.textContent = activeGameQuest.enemyIcon;
+            gameBattleFeedback.textContent = '';
+
+            gameSubmitAnswerBtn.classList.remove('hidden');
+            gameNextQuestionBtn.classList.add('hidden');
+            gameBackToMapBtn.classList.add('hidden');
+
+            showScreen(gameBattleArenaScreen);
+            setTimeout(() => {
+                displayNextBattleQuestion();
+            }, 1500);
+        }
+
+        function displayNextBattleQuestion() {
+            gameBattleExplanationContainer.classList.add('hidden');
+
+            if (questionsAnsweredCorrectlyInBattle >= correctAnswersNeeded) {
+                endBattle(true);
+                return;
+            }
+
+            if (currentQuestionIndex >= currentBattleQuestions.length || currentPlayerHealth <= 0) {
+                endBattle(false);
+                return;
+            }
+
+            const questionData = currentBattleQuestions[currentQuestionIndex];
+            gameBattleQuestionNumber.textContent = `Question: ${questionsAnsweredCorrectlyInBattle + 1} / ${correctAnswersNeeded} Correct Answers`;
+            gameBattleQuestion.textContent = questionData.question;
+            gameBattleOptions.innerHTML = '';
+            gameBattleFeedback.textContent = '';
+            selectedBattleOption = null;
+
+            shuffleArray([...questionData.options]).forEach(option => {
+                const optionDiv = document.createElement('div');
+                optionDiv.classList.add('battle-option');
+                optionDiv.textContent = option;
+                optionDiv.addEventListener('click', () => {
+                    if (selectedBattleOption) {
+                        selectedBattleOption.classList.remove('selected');
+                    }
+                    selectedBattleOption = optionDiv;
+                    optionDiv.classList.add('selected');
+                });
+                gameBattleOptions.appendChild(optionDiv);
+            });
+
+            gameSubmitAnswerBtn.disabled = false;
+            gameSubmitAnswerBtn.classList.remove('hidden');
+            gameNextQuestionBtn.classList.add('hidden');
+        }
+
+        function submitBattleAnswer() {
+            if (!selectedBattleOption) {
+                gameBattleFeedback.textContent = "Please select an answer!";
+                gameBattleFeedback.style.color = '#F44336';
+                return;
+            }
+
+            gameSubmitAnswerBtn.disabled = true;
+
+            const questionData = currentBattleQuestions[currentQuestionIndex];
+            const isCorrect = selectedBattleOption.textContent === questionData.correctAnswer;
+
+            document.querySelectorAll('.battle-option').forEach(optionDiv => {
+                if (optionDiv.textContent === questionData.correctAnswer) {
+                    optionDiv.classList.add('correct-answer');
+                } else if (optionDiv === selectedBattleOption) {
+                    optionDiv.classList.add('incorrect-answer');
+                }
+            });
+
+            if (isCorrect) {
+                gameBattleFeedback.textContent = "✅ Correct! Great job!";
+                gameBattleFeedback.style.color = '#4CAF50';
+                questionsAnsweredCorrectlyInBattle++;
+            } else {
+                gameBattleFeedback.textContent = "❌ Incorrect. Health lost!";
+                gameBattleFeedback.style.color = '#F44336';
+                currentPlayerHealth--;
+                updateGamePlayerHealthDisplay();
+            }
+
+            currentQuestionIndex++;
+
+            if (questionsAnsweredCorrectlyInBattle >= correctAnswersNeeded) {
+                setTimeout(() => endBattle(true), 1500);
+            } else if (currentPlayerHealth <= 0) {
+                setTimeout(() => endBattle(false), 1500);
+            } else {
+                gameNextQuestionBtn.classList.remove('hidden');
+            }
+            gameSubmitAnswerBtn.classList.add('hidden');
+        }
+
+        function endBattle(won) {
+            showScreen(gameResultScreen);
+            gamePrizeEmojiDisplay.textContent = activeGameQuest.prizeEmoji;
+
+            if (won) {
+                gameResultMessage.textContent = `Quest Complete! You defeated the ${activeGameQuest.title.split(': ')[1] || activeGameQuest.title} foe!`;
+                gameResultDetails.textContent = `Congratulations! You've mastered "${activeGameQuest.concept}" and unlocked the power of ${activeGameQuest.prizeEmoji} for this concept!`;
+
+                const currentIndex = quests.findIndex(q => q.id === activeGameQuest.id);
+                if (currentIndex !== -1 && currentIndex < quests.length - 1) {
+                    const nextQuestId = quests[currentIndex + 1].id;
+                    if (!unlockedQuests[nextQuestId]) {
+                        unlockedQuests[nextQuestId] = true;
+                        localStorage.setItem('unlockedQuests', JSON.stringify(unlockedQuests));
+                    }
+                }
+
+            } else {
+                gameResultMessage.textContent = `Quest Failed! The ${activeGameQuest.title.split(': ')[1] || activeGameQuest.title} foe overpowered you.`;
+                gameResultDetails.textContent = `You need to answer ${correctAnswersNeeded} questions correctly. Your health ran out. Don't worry, you can try again!`;
+                gamePrizeEmojiDisplay.textContent = '😞';
+            }
+        }
+
+
+        // --- Event Listeners ---
+        // Lessons Controls
+        lessonRunCodeBtn.addEventListener('click', () => runSimulatedLessonCode(currentLessonQuest));
+        lessonTerminalInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !lessonTerminalInput.disabled) {
+                runSimulatedLessonCode(currentLessonQuest);
+            }
+        });
+        lessonSubmitQuizBtn.addEventListener('click', submitLessonQuizAnswer);
+
+        // Game Navigation
+        gotoGameBtn.addEventListener('click', () => {
+            showScreen(gameWorldMapScreen); // Go directly to map
+            populateGameWorldMap();
+        });
+
+        gameNextQuestionBtn.addEventListener('click', displayNextBattleQuestion);
+        gameSubmitAnswerBtn.addEventListener('click', submitBattleAnswer);
+        gameReturnToMapBtn.addEventListener('click', () => {
+            showScreen(gameWorldMapScreen);
+            populateGameWorldMap();
+        });
+
+        // Back to Lessons Buttons
+        backToLessonsFromMapBtn.addEventListener('click', () => showScreen(lessonsScreen));
+        backToLessonsFromGameResultBtn.addEventListener('click', () => showScreen(lessonsScreen));
+
+
+        // --- Initial Setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadLessonQuests();
+            showScreen(lessonsScreen);
+        });
+    </script>
+</body>
+</html>
