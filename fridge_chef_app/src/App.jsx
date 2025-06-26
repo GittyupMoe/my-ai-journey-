@@ -234,8 +234,8 @@ const App = () => {
         setSuggestedMeal(null);
 
         const prompt = `Generate a simple recipe in JSON format based on these ingredients: ${selectedIngredients.join(', ')}. ` + // Uses selectedIngredients (a list)
-                       (selectedCuisine ? `The cuisine preference is ${selectedCuisine}. ` : '') + // Uses selectedCuisine (a string)
-                       `The recipe should include a 'name' (string), 'ingredients' (array of strings for ingredients, clearly stating if it's "you have" or "you need" in parentheses), and 'prep_steps' (array of strings). Try to keep the ingredients to a reasonable number (5-8 total, including needed ones) and the steps concise (5-8 steps). Example ingredient format: "pasta (you have)", "chicken breast (you need)".`;
+                            (selectedCuisine ? `The cuisine preference is ${selectedCuisine}. ` : '') + // Uses selectedCuisine (a string)
+                            `The recipe should include a 'name' (string), 'ingredients' (array of strings for ingredients, clearly stating if it's "you have" or "you need" in parentheses), and 'prep_steps' (array of strings). Try to keep the ingredients to a reasonable number (5-8 total, including needed ones) and the steps concise (5-8 steps). Example ingredient format: "pasta (you have)", "chicken breast (you need)".`;
 
         try {
             const payload = {
@@ -306,12 +306,12 @@ const App = () => {
 
             } else {
                 setSuggestedMeal(null);
-                setCurrentScreen('meal-suggest');
+                setCurrentScreen('meal-suggest'); // Still go to meal-suggest, but show no recipe
             }
         } catch (error) {
             console.error("Error generating recipe with AI:", error);
             setSuggestedMeal(null);
-            setCurrentScreen('meal-suggest');
+            setCurrentScreen('meal-suggest'); // Still go to meal-suggest, but show error
         } finally {
             setIsAILoading(false);
         }
@@ -338,7 +338,7 @@ const App = () => {
 
             const matchPercentage = (commonIngredients.length / recipeIngredientsNames.length) * 100;
 
-            const MIN_MATCH_PERCENTAGE = 30;
+            const MIN_MATCH_PERCENTAGE = 30; // Define a minimum match percentage to suggest a recipe
 
             if (matchPercentage >= MIN_MATCH_PERCENTAGE && matchPercentage > highestMatchPercentage) {
                 highestMatchPercentage = matchPercentage;
@@ -381,13 +381,26 @@ const App = () => {
         }
     };
 
+    // Reset the game to the start
+    const resetGame = () => {
+        setSelectedIngredients([]);
+        setSelectedCuisine('');
+        setSuggestedMeal(null);
+        setCurrentStepIndex(0);
+        setCookingProgress(0);
+        setChatHistory([]);
+        setUserMessage('');
+        setIsAILoading(false);
+        setCurrentScreen('start');
+    };
+
     // --- UI Rendering based on currentScreen state ---
 
     // Start Screen
     if (currentScreen === 'start') {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-300 to-blue-500 p-4 font-inter text-gray-800">
-                <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-lg w-full transform transition-all duration-300 scale-100 hover:scale-105">
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-green-300 to-blue-500 p-4 font-sans text-gray-800">
+                <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center max-w-lg w-full transform transition-all duration-300 scale-100 hover:scale-105">
                     <h1 className="text-5xl font-extrabold text-green-700 mb-6 drop-shadow-lg">
                         Fridge Chef! 🍳
                     </h1>
@@ -416,8 +429,8 @@ const App = () => {
     // Fridge Selection Screen
     if (currentScreen === 'fridge-select') {
         return (
-            <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-yellow-200 to-orange-400 p-4 font-inter text-gray-800">
-                <div className="bg-white p-8 rounded-2xl shadow-xl max-w-3xl w-full my-8">
+            <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-yellow-200 to-orange-400 p-4 font-sans text-gray-800">
+                <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl max-w-4xl w-full my-8">
                     <h2 className="text-4xl font-bold text-orange-700 mb-6 text-center">
                         What's in Your Fridge? 🍎🥕🧀
                     </h2>
@@ -549,13 +562,13 @@ const App = () => {
         const cuisines = [...new Set(recipes.map(r => r.cuisine))]; // Uses 'recipes' (LIST OF DICTIONARIES) to extract unique cuisines.
 
         return (
-            <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-purple-300 to-pink-500 p-4 font-inter text-gray-800">
-                <div className="bg-white p-8 rounded-2xl shadow-xl max-w-xl w-full my-8 text-center">
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-purple-300 to-pink-500 p-4 font-sans text-gray-800">
+                <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl max-w-xl w-full my-8 text-center">
                     <h2 className="text-4xl font-bold text-pink-700 mb-6">
                         What's Your Craving? 🍜🌮
                     </h2>
                     <p className="text-md text-gray-700 mb-8">
-                        Choose a cuisine to narrow down your meal options.
+                        Choose a cuisine, or let the AI chef decide for you!
                     </p>
 
                     <div className="flex flex-wrap justify-center gap-4 mb-8">
@@ -564,38 +577,38 @@ const App = () => {
                                 key={cuisine}
                                 onClick={() => setSelectedCuisine(cuisine)} // Updates selectedCuisine (a STRING)
                                 className={`py-3 px-6 rounded-full text-lg font-semibold shadow-md transform transition-transform duration-200 ease-in-out
-                                            ${selectedCuisine === cuisine // Compares with selectedCuisine (a STRING)
-                                                ? 'bg-pink-600 text-white shadow-xl'
-                                                : 'bg-gray-200 text-gray-700 hover:bg-pink-100 hover:text-pink-800'
+                                            ${selectedCuisine === cuisine
+                                                ? 'bg-pink-600 text-white shadow-lg scale-105'
+                                                : 'bg-purple-200 text-purple-800 hover:bg-pink-300 hover:text-pink-900'
                                             }`}
                             >
                                 {cuisine}
                             </button>
                         ))}
-                        <button
-                            onClick={() => setSelectedCuisine('')}
-                            className={`py-3 px-6 rounded-full text-lg font-semibold shadow-md transform transition-transform duration-200 ease-in-out
-                                        ${selectedCuisine === ''
-                                            ? 'bg-gray-600 text-white shadow-xl'
-                                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300 hover:text-gray-800'
-                                        }`}
-                        >
-                            Any Cuisine
-                        </button>
                     </div>
 
-                    <div className="text-center flex justify-between items-center mt-8">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-8">
                         <button
                             onClick={() => setCurrentScreen('fridge-select')}
                             className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-gray-300"
                         >
-                            Back
+                            Back to Ingredients
                         </button>
                         <button
                             onClick={findMeal}
-                            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-green-300"
+                            disabled={isAILoading}
+                            className={`bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-200 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300
+                                        ${isAILoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
                         >
-                            Find My Meal! ✨
+                            Find Meal (Predefined)
+                        </button>
+                        <button
+                            onClick={generateRecipeWithAI}
+                            disabled={isAILoading}
+                            className={`bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-200 active:scale-95 focus:outline-none focus:ring-4 focus:ring-teal-300
+                                        ${isAILoading ? 'opacity-50 cursor-not-allowed' : 'hover:scale-105'}`}
+                        >
+                            {isAILoading ? 'Generating...' : 'Generate with AI 🧠'}
                         </button>
                     </div>
                 </div>
@@ -606,172 +619,168 @@ const App = () => {
     // Meal Suggestion Screen
     if (currentScreen === 'meal-suggest') {
         return (
-            <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-teal-300 to-cyan-500 p-4 font-inter text-gray-800">
-                <div className="bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full my-8 text-center">
+            <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-green-200 to-teal-400 p-4 font-sans text-gray-800">
+                <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl max-w-2xl w-full my-8 text-center">
                     <h2 className="text-4xl font-bold text-teal-700 mb-6">
-                        Your Meal Plan! 🍽️
+                        Your Suggested Meal! 🎉
                     </h2>
-                    {isAILoading ? (
-                        <div className="flex flex-col items-center justify-center py-10">
-                            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-teal-500 mb-4"></div>
-                            <p className="text-xl text-teal-700 font-semibold">Generating your custom recipe...</p>
-                        </div>
-                    ) : (
+                    {suggestedMeal ? ( // Checks if suggestedMeal (DICTIONARY) is not null
                         <>
-                            {suggestedMeal ? ( // Checks if suggestedMeal (DICTIONARY) is not null
-                                <>
-                                    <h3 className="text-3xl font-semibold text-cyan-800 mb-4">
-                                        {suggestedMeal.name} {/* Accessing 'name' from suggestedMeal (DICTIONARY) */}
-                                        {suggestedMeal.isAIGenerated && <span className="text-sm text-purple-600 ml-2">(AI Generated)</span>}
-                                    </h3>
-                                    <p className="text-lg text-gray-700 mb-2">
-                                        <span className="font-bold">Cuisine:</span> {suggestedMeal.cuisine}
-                                    </p>
-                                    <p className="text-xl text-green-700 font-bold mb-6">
-                                        {suggestedMeal.matchPercentage.toFixed(0)}% of ingredients available!
-                                    </p>
-
-                                    <div className="mb-8 flex flex-col items-center">
-                                        {suggestedMeal.commonIngredients.length > 0 && ( // Checks length of commonIngredients (LIST)
-                                            <div className="w-full max-w-sm mb-4">
-                                                <h4 className="text-2xl font-bold text-gray-800 mb-2">
-                                                    Ingredients You Have:
-                                                </h4>
-                                                <ul className="list-disc list-inside text-left text-gray-700 text-lg">
-                                                    {suggestedMeal.commonIngredients.map((ing, index) => ( // Iterates through commonIngredients (LIST)
-                                                        <li key={index}>{ing}</li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        )}
-
-                                        {suggestedMeal.missingIngredients.length > 0 && (
-                                            <div className="w-full max-w-sm">
-                                                <h4 className="text-2xl font-bold text-red-600 mb-2">
-                                                    Ingredients You Need:
-                                                </h4>
-                                                <ul className="list-disc list-inside text-left text-red-700 text-lg">
-                                                    {suggestedMeal.missingIngredients.map((ing, index) => ( // Iterates through missingIngredients (LIST)
-                                                        <li key={index}>{ing}</li>
-                                                    ))}
-                                                </ul>
-                                            </div>
-                                        )}
-                                        {suggestedMeal.prep_steps && suggestedMeal.prep_steps.length > 0 && (
-                                            <div className="w-full max-w-sm mt-4">
-                                                <h4 className="text-2xl font-bold text-gray-800 mb-2">
-                                                    Instructions Summary:
-                                                </h4>
-                                                <ul className="list-decimal list-inside text-left text-gray-700 text-lg">
-                                                    {suggestedMeal.prep_steps.slice(0, 3).map((step, index) => ( // Accesses prep_steps (LIST)
-                                                        <li key={index}>{step.substring(0, 50)}...</li>
-                                                    ))}
-                                                    {suggestedMeal.prep_steps.length > 3 && <li>... (More steps in cooking mode)</li>}
-                                                </ul>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {suggestedMeal.missingIngredients.length === 0 ? (
-                                        <p className="text-lg text-green-700 font-semibold mb-6">
-                                            You have everything! Time to cook!
-                                        </p>
-                                    ) : (
-                                        <p className="text-lg text-orange-700 font-semibold mb-6">
-                                            Gather the missing ingredients, then you're ready to cook!
-                                        </p>
-                                    )}
-
-                                    <div className="text-center flex justify-between items-center mt-8">
-                                        <button
-                                            onClick={() => setCurrentScreen('cuisine-select')}
-                                            className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-gray-300"
-                                        >
-                                            Back
-                                        </button>
-                                        <button
-                                            onClick={startCooking}
-                                            className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-green-300"
-                                        >
-                                            Start Cooking! 🧑‍🍳
-                                        </button>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <p className="text-2xl text-red-600 font-semibold mb-6">
-                                        No predefined meal found with your current ingredients. 😔
-                                    </p>
-                                    <p className="text-lg text-gray-700 mb-8">
-                                        Let our AI Chef create a custom recipe for you!
-                                    </p>
-                                    <button
-                                        onClick={generateRecipeWithAI}
-                                        className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-purple-300 mr-4"
-                                    >
-                                        Generate Recipe with AI! ✨
-                                    </button>
-                                    <button
-                                        onClick={() => setCurrentScreen('fridge-select')}
-                                        className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300"
-                                    >
-                                        Adjust Fridge/Cuisine
-                                    </button>
-                                </>
+                            <h3 className="text-3xl font-semibold text-gray-800 mb-4">{suggestedMeal.name}</h3>
+                            {suggestedMeal.isAIGenerated && ( // Checks a boolean flag in the suggestedMeal DICTIONARY
+                                <p className="text-sm text-gray-600 mb-4 italic">
+                                    (AI-Generated Recipe)
+                                </p>
                             )}
+
+                            {suggestedMeal.matchPercentage !== undefined && ( // Checks for presence of 'matchPercentage' in suggestedMeal DICTIONARY
+                                <div className="mb-6">
+                                    <p className="text-lg text-gray-700 mb-2">
+                                        Ingredient Match: <span className="font-bold text-teal-600">{suggestedMeal.matchPercentage.toFixed(0)}%</span>
+                                    </p>
+                                    <div className="w-full bg-gray-200 rounded-full h-2.5">
+                                        <div
+                                            className="bg-teal-500 h-2.5 rounded-full"
+                                            style={{ width: `${suggestedMeal.matchPercentage}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="text-left mb-6">
+                                <h4 className="text-2xl font-semibold text-gray-800 mb-3 border-b-2 border-teal-300 pb-2">Ingredients:</h4>
+                                <ul className="list-disc list-inside text-gray-700">
+                                    {suggestedMeal.isAIGenerated ? (
+                                        // For AI generated, ingredients are already formatted with (you have/need)
+                                        suggestedMeal.ingredients.map((ing, index) => ( // Iterates through 'ingredients' (LIST) in suggestedMeal DICTIONARY
+                                            <li key={index} className={`${ing.toLowerCase().includes('(you have)') ? 'text-green-700' : 'text-red-700'}`}>
+                                                {ing}
+                                            </li>
+                                        ))
+                                    ) : (
+                                        // For predefined, show common and missing separately
+                                        <>
+                                            {suggestedMeal.commonIngredients && suggestedMeal.commonIngredients.length > 0 && (
+                                                <li className="font-medium">You Have:</li>
+                                            )}
+                                            {suggestedMeal.commonIngredients && suggestedMeal.commonIngredients.map((ing, index) => ( // Iterates through 'commonIngredients' (LIST)
+                                                <li key={`common-${index}`} className="ml-4 text-green-700">
+                                                    ✅ {ing}
+                                                </li>
+                                            ))}
+                                            {suggestedMeal.missingIngredients && suggestedMeal.missingIngredients.length > 0 && (
+                                                <li className="font-medium mt-2">You Might Need:</li>
+                                            )}
+                                            {suggestedMeal.missingIngredients && suggestedMeal.missingIngredients.map((ing, index) => ( // Iterates through 'missingIngredients' (LIST)
+                                                <li key={`missing-${index}`} className="ml-4 text-red-700">
+                                                    ❌ {ing}
+                                                </li>
+                                            ))}
+                                        </>
+                                    )}
+                                </ul>
+                            </div>
+
+                            <div className="text-left mb-8">
+                                <h4 className="text-2xl font-semibold text-gray-800 mb-3 border-b-2 border-teal-300 pb-2">Preparation Steps:</h4>
+                                <ol className="list-decimal list-inside text-gray-700">
+                                    {suggestedMeal.prep_steps.map((step, index) => ( // Iterates through 'prep_steps' (LIST) in suggestedMeal DICTIONARY
+                                        <li key={index} className="mb-2">{step}</li>
+                                    ))}
+                                </ol>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                                <button
+                                    onClick={() => setCurrentScreen('cuisine-select')}
+                                    className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-gray-300"
+                                >
+                                    Choose Another Meal
+                                </button>
+                                <button
+                                    onClick={startCooking}
+                                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-green-300"
+                                >
+                                    Start Cooking! 🧑‍🍳
+                                </button>
+                            </div>
                         </>
+                    ) : (
+                        <div className="text-center">
+                            <p className="text-xl text-gray-700 mb-6">
+                                Oops! We couldn't find a suitable recipe with your selected ingredients and cuisine.
+                            </p>
+                            <p className="text-lg text-gray-600 mb-8">
+                                Try selecting more ingredients, different ones, or exploring the AI Assistant for more creative ideas!
+                            </p>
+                            <button
+                                onClick={() => setCurrentScreen('fridge-select')}
+                                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-blue-300"
+                            >
+                                Back to Ingredients
+                            </button>
+                        </div>
                     )}
                 </div>
             </div>
         );
     }
 
-    // Cooking Practice Screen
+    // Cooking Screen
     if (currentScreen === 'cooking') {
-        const totalSteps = suggestedMeal.prep_steps.length; // Accesses prep_steps (LIST) from suggestedMeal (DICTIONARY)
-        const currentStep = suggestedMeal.prep_steps[currentStepIndex]; // Accesses an element from the LIST
+        if (!suggestedMeal || !suggestedMeal.prep_steps || suggestedMeal.prep_steps.length === 0) { // Safety check for suggestedMeal (DICTIONARY) and its 'prep_steps' (LIST)
+            return (
+                <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-red-200 to-red-400 p-4 font-sans text-gray-800">
+                    <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center max-w-md w-full">
+                        <h2 className="text-3xl font-bold text-red-700 mb-4">Error: No Recipe Found!</h2>
+                        <p className="mb-6">Please go back and select a meal first.</p>
+                        <button
+                            onClick={() => setCurrentScreen('start')}
+                            className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-full shadow-lg"
+                        >
+                            Back to Start
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        const currentStep = suggestedMeal.prep_steps[currentStepIndex]; // Accessing an element from 'prep_steps' (LIST)
 
         return (
-            <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-lime-300 to-green-600 p-4 font-inter text-gray-800">
-                <div className="bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full my-8">
-                    <h2 className="text-4xl font-bold text-green-800 mb-6 text-center">
-                        Let's Cook: {suggestedMeal.name}! 🧑‍🍳
+            <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-yellow-100 to-red-300 p-4 font-sans text-gray-800">
+                <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl max-w-xl w-full my-8">
+                    <h2 className="text-4xl font-bold text-red-700 mb-6 text-center">
+                        Cooking: {suggestedMeal.name} 🍽️
                     </h2>
-
-                    <div className="mb-8">
-                        <p className="text-lg text-gray-700 text-center mb-2">
-                            Step {currentStepIndex + 1} of {totalSteps}
+                    <div className="mb-6">
+                        <p className="text-lg text-gray-700 mb-2">
+                            Step {currentStepIndex + 1} of {suggestedMeal.prep_steps.length}
                         </p>
-                        <div className="w-full bg-gray-200 rounded-full h-4 mb-4">
+                        <div className="w-full bg-gray-200 rounded-full h-4">
                             <div
-                                className="bg-green-500 h-4 rounded-full transition-all duration-500 ease-out"
+                                className="bg-red-500 h-4 rounded-full transition-all duration-500 ease-out"
                                 style={{ width: `${cookingProgress}%` }}
                             ></div>
                         </div>
-                        <div className="relative bg-gray-100 p-6 rounded-xl shadow-inner border border-gray-200 text-center">
-                            <p className="text-2xl font-semibold text-gray-900 leading-relaxed">
-                                {currentStep}
-                            </p>
-                            <div className="mt-6 flex justify-center items-center">
-                                {currentStepIndex % 3 === 0 && <span className="text-5xl animate-bounce">🔪</span>}
-                                {currentStepIndex % 3 === 1 && <span className="text-5xl animate-spin">🍳</span>}
-                                {currentStepIndex % 3 === 2 && <span className="text-5xl animate-pulse">🍲</span>}
-                            </div>
-                        </div>
                     </div>
 
-                    <div className="text-center flex justify-between items-center mt-8">
+                    <div className="bg-yellow-50 p-6 rounded-xl shadow-inner border border-yellow-200 mb-8 text-center text-xl text-gray-800">
+                        <p>{currentStep}</p>
+                    </div>
+
+                    <div className="flex justify-between items-center mt-8">
                         <button
                             onClick={() => setCurrentScreen('meal-suggest')}
                             className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-gray-300"
                         >
-                            Back to Meal Plan
+                            Back to Meal Details
                         </button>
                         <button
                             onClick={nextCookingStep}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus://ring-blue-300"
+                            className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-red-300"
                         >
-                            Complete Step! 💪
+                            {currentStepIndex === suggestedMeal.prep_steps.length - 1 ? 'Finish Cooking!' : 'Next Step →'}
                         </button>
                     </div>
                 </div>
@@ -782,22 +791,19 @@ const App = () => {
     // Completed Screen
     if (currentScreen === 'completed') {
         return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-yellow-400 to-red-600 p-4 font-inter text-gray-800">
-                <div className="bg-white p-8 rounded-2xl shadow-xl text-center max-w-lg w-full transform transition-all duration-300 scale-100 hover:scale-105">
-                    <h2 className="text-5xl font-extrabold text-red-700 mb-6 drop-shadow-lg">
-                        Meal Cooked! 🎉
+            <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-lime-300 to-green-600 p-4 font-sans text-gray-800">
+                <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl text-center max-w-lg w-full">
+                    <h2 className="text-5xl font-extrabold text-green-800 mb-6 drop-shadow-lg">
+                        Meal Cooked! 😋
                     </h2>
-                    <p className="text-2xl font-semibold text-gray-800 mb-4">
-                        You successfully cooked {suggestedMeal.name}!
-                    </p>
-                    <p className="text-lg text-gray-700 mb-8">
-                        Time to enjoy your delicious creation. Great job, Chef!
+                    <p className="text-2xl text-gray-700 mb-8">
+                        You successfully cooked {suggestedMeal?.name || "your meal"}! Enjoy!
                     </p>
                     <button
-                        onClick={() => setCurrentScreen('start')}
-                        className="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-green-300"
+                        onClick={resetGame}
+                        className="bg-green-700 hover:bg-green-800 text-white font-bold py-3 px-8 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-green-300"
                     >
-                        Start New Game
+                        Start A New Adventure! ✨
                     </button>
                 </div>
             </div>
@@ -807,86 +813,86 @@ const App = () => {
     // AI Assistant Screen
     if (currentScreen === 'ai-assistant') {
         return (
-            <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-purple-200 to-blue-400 p-4 font-inter text-gray-800">
-                <div className="bg-white p-8 rounded-2xl shadow-xl max-w-2xl w-full my-8 flex flex-col h-[80vh]">
-                    <h2 className="text-4xl font-bold text-purple-700 mb-6 text-center">
-                        AI Assistant 🤖
+            <div className="flex flex-col items-center min-h-screen bg-gradient-to-br from-blue-300 to-indigo-500 p-4 font-sans text-gray-800">
+                <div className="bg-white/90 backdrop-blur-sm p-8 rounded-2xl shadow-xl max-w-2xl w-full my-8 flex flex-col h-[80vh]">
+                    <h2 className="text-4xl font-bold text-indigo-700 mb-6 text-center">
+                        AI Chef Assistant 🤖
                     </h2>
-                    <p className="text-md text-gray-700 mb-6 text-center">
-                        Ask me about ingredients, recipes, or even where to buy groceries!
+                    <p className="text-md text-gray-700 mb-4 text-center">
+                        Chat with your AI chef for cooking tips, ingredient substitutions, or recipe ideas!
                     </p>
 
-                    {/* Chat History Display */}
-                    <div ref={chatContainerRef} className="flex-grow overflow-y-auto border border-gray-300 rounded-lg p-4 mb-4 bg-gray-50 shadow-inner flex flex-col gap-3">
+                    <div ref={chatContainerRef} className="flex-grow bg-gray-100 p-4 rounded-lg overflow-y-auto mb-4 border border-gray-300 shadow-inner flex flex-col gap-3">
                         {chatHistory.length === 0 && ( // Checks length of chatHistory (LIST)
-                            <p className="text-center text-gray-500 italic">Say hello to your AI chef assistant!</p>
+                            <p className="text-gray-500 italic text-center">Start chatting with your AI Chef!</p>
                         )}
-                        {chatHistory.map((msg, index) => ( // Iterates through chatHistory (LIST OF DICTIONARIES)
+                        {chatHistory.map((message, index) => ( // Iterates through chatHistory (LIST OF DICTIONARIES)
                             <div
                                 key={index}
-                                className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`} // Accesses 'role' from message DICTIONARY
+                                className={`p-3 rounded-lg max-w-[80%] break-words ${message.role === 'user' ? 'bg-blue-200 self-end text-blue-900 rounded-br-none' : 'bg-gray-300 self-start text-gray-800 rounded-bl-none'}`}
                             >
-                                <div
-                                    className={`p-3 rounded-lg max-w-[75%] shadow-md ${
-                                        msg.role === 'user'
-                                            ? 'bg-blue-500 text-white rounded-br-none'
-                                            : 'bg-gray-200 text-gray-800 rounded-bl-none'
-                                    }`}
-                                >
-                                    {msg.parts.map((part, pIdx) => ( // Accesses 'parts' (LIST) from message DICTIONARY
-                                        <p key={pIdx}>{part.text}</p>
-                                    ))}
-                                </div>
+                                {message.parts.map((part, partIndex) => (
+                                    <span key={partIndex}>{part.text}</span> // Accesses 'parts' (LIST) within a message DICTIONARY
+                                ))}
                             </div>
                         ))}
-                        {isAILoading && (
-                            <div className="flex justify-start">
-                                <div className="p-3 rounded-lg bg-gray-200 text-gray-800 rounded-bl-none animate-pulse">
-                                    Thinking...
-                                </div>
+                        {isAILoading && ( // Checks a boolean flag
+                            <div className="self-start bg-gray-200 p-3 rounded-lg max-w-[80%] animate-pulse">
+                                <span className="text-gray-600">AI is thinking...</span>
                             </div>
                         )}
                     </div>
 
-                    {/* Chat Input */}
                     <div className="flex gap-2">
                         <input
                             type="text"
-                            value={userMessage}
-                            onChange={(e) => setUserMessage(e.target.value)} // Updates userMessage (STRING)
+                            value={userMessage} // Accesses userMessage (a STRING)
+                            onChange={(e) => setUserMessage(e.target.value)}
                             onKeyPress={(e) => {
                                 if (e.key === 'Enter' && !isAILoading) {
                                     sendAIMessage();
                                 }
                             }}
-                            placeholder="Type your message..."
-                            className="flex-grow p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-300 text-gray-700"
+                            placeholder="Type your message to the AI chef..."
+                            className="flex-grow p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-300 text-gray-700"
                             disabled={isAILoading}
                         />
                         <button
                             onClick={sendAIMessage}
-                            className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition-colors duration-200 focus:outline-none focus:ring-4 focus:ring-purple-300"
-                            disabled={isAILoading}
+                            disabled={isAILoading || userMessage.trim() === ''} // Checks boolean flag and STRING length
+                            className={`bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-6 rounded-lg shadow-md transition-colors duration-200
+                                        ${isAILoading || userMessage.trim() === '' ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
-                            Send
+                            {isAILoading ? 'Sending...' : 'Send'}
                         </button>
                     </div>
 
-                    <div className="text-center mt-6">
-                        <button
-                            onClick={() => setCurrentScreen('start')}
-                            className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-gray-300"
-                        >
-                            Back to Main Menu
-                        </button>
-                    </div>
+                    <button
+                        onClick={() => setCurrentScreen('start')}
+                        className="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-6 rounded-full shadow-lg transform transition-transform duration-200 hover:scale-105 active:scale-95 focus:outline-none focus:ring-4 focus:ring-gray-300 mt-6 self-center"
+                    >
+                        Back to Home
+                    </button>
                 </div>
             </div>
         );
     }
 
-    return null; // Should not reach here
+    // Fallback for unexpected screen state
+    return (
+        <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4 font-sans text-gray-800">
+            <div className="bg-white p-8 rounded-lg shadow-xl text-center">
+                <h2 className="text-3xl font-bold text-red-500 mb-4">Something went wrong!</h2>
+                <p className="mb-6">Unknown screen state: {currentScreen}</p>
+                <button
+                    onClick={resetGame}
+                    className="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-md"
+                >
+                    Reset App
+                </button>
+            </div>
+        </div>
+    );
 };
 
 export default App;
-

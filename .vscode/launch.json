@@ -8,15 +8,8 @@
             "name": "Launch Chrome",
             "request": "launch",
             "type": "chrome",
-            "url": "http://localhost:8080",
+            "url": "http://localhost:5173",
             "webRoot": "${workspaceFolder}"
         },
-        
-        {
-            "type": "chrome",
-            "request": "launch",
-            "name": "Open ai_journey+quest_log.html",
-            "file": "c:\\Users\\mpyei\\.cursor\\my-ai-journey-\\ai_journey+quest_log.html"
-        }
     ]
 }
