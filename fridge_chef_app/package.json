@@ -20,9 +20,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/fridge_chef_app.git"
+    "url": "https://github.com/yourusername/my-ai-journey-.git"
   },
-  "homepage": "https://yourusername.github.io/fridge_chef_app",
+  "homepage": "https://yourusername.github.io/my-ai-journey-",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
