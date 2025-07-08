@@ -201,7 +201,7 @@ const App = () => {
             let chatHistoryForApi = [...chatHistory, newUserMessage]; // Uses chatHistory (list of dictionaries)
             const payload = { contents: chatHistoryForApi }; // Payload includes chat history
 
-            const apiKey = "";
+            const apiKey = "AIzaSyD47yG25fuAamSwtSYb3ujM6Gz_L-nMu-8";
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
             const response = await fetch(apiUrl, {
@@ -259,7 +259,7 @@ const App = () => {
                     }
                 }
             };
-            const apiKey = "";
+            const apiKey = "AIzaSyD47yG25fuAamSwtSYb3ujM6Gz_L-nMu-8";
 
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 

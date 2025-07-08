@@ -213,7 +213,7 @@ const sendAIMessage = async () => {
    ```
 
 5. **Open your browser**
-   - Navigate to `http://localhost:5173/`
+   - Navigate to `http://localhost:5as3/`
    - The app should now be running!
 
 ## 📱 Usage

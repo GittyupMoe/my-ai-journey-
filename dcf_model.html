@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCF Mini-Project</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-group label {
+            font-weight: 600;
+            color: #333;
+        }
+        .input-group input {
+            padding: 10px 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        .input-group input:focus {
+            outline: none;
+            border-color: #6366f1;
+        }
+        .results-section h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        .result-item {
+            background-color: #f8fafc;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .result-item strong {
+            display: block;
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 4px;
+        }
+        .result-item span {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1a202c;
+        }
+        .chart-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 200px;
+            gap: 5px;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+        }
+        .bar {
+            flex-grow: 1;
+            background-color: #6366f1;
+            width: 20px; /* Base width, flex-grow will distribute */
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            position: relative;
+        }
+        .bar-label {
+            position: absolute;
+            top: -20px;
+            font-size: 0.75rem;
+            color: #333;
+            text-align: center;
+            width: 100%;
+        }
+        .chart-axis-label {
+            display: flex;
+            justify-content: space-around;
+            font-size: 0.85rem;
+            color: #555;
+            margin-top: 5px;
+        }
+        .message-box {
+            background-color: #fef3c7;
+            color: #92400e;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #fcd34d;
+            margin-top: 15px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .loading-spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-top: 4px solid #6366f1;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .overvalued {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border-color: #ef4444;
+        }
+        .undervalued {
+            background-color: #d1fae5;
+            color: #047857;
+            border-color: #10b981;
+        }
+        .fairly-valued {
+            background-color: #e0f2fe;
+            color: #2563eb;
+            border-color: #3b82f6;
+        }
+        .tooltip {
+            cursor: pointer;
+            border-bottom: 1px dotted #888;
+            color: #6366f1;
+            font-size: 1.1em;
+            margin-left: 4px;
+        }
+        .sensitivity-container {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+        .sensitivity-table {
+            font-size: 0.875rem;
+        }
+        .sensitivity-table th,
+        .sensitivity-table td {
+            text-align: center;
+            padding: 8px 4px;
+            border: 1px solid #d1d5db;
+        }
+        .sensitivity-table th {
+            background-color: #f3f4f6;
+            font-weight: 600;
+        }
+        .current-assumption {
+            background-color: #dbeafe;
+            font-weight: 600;
+            color: #1e40af;
+        }
+        .overvalued-cell {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        .undervalued-cell {
+            background-color: #d1fae5;
+            color: #047857;
+        }
+        .fairly-valued-cell {
+            background-color: #e0f2fe;
+            color: #2563eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">DCF Model Mini-Project - Automated Data Fetch & Comparison</h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="input-group">
+                <label for="tickerSymbol">Stock Ticker Symbol:
+                    <span class="tooltip" title="The unique symbol used to identify a publicly traded company (e.g., AAPL for Apple, TSLA for Tesla).">&#9432;</span>
+                </label>
+                <input type="text" id="tickerSymbol" value="TSLA" placeholder="e.g., TSLA" class="rounded-lg uppercase">
+            </div>
+            <div class="input-group">
+                <label for="companyName">Company Name:
+                    <span class="tooltip" title="The full name of the company corresponding to the ticker symbol.">&#9432;</span>
+                </label>
+                <input type="text" id="companyName" value="Tesla Inc." readonly class="rounded-lg bg-gray-100 cursor-not-allowed">
+            </div>
+            <div class="input-group">
+                <label for="currentFCFE">Current FCFE (Millions $):
+                    <span class="tooltip" title="Free Cash Flow to Equity: The cash available to shareholders after all expenses, reinvestment, and debt payments. Shown in millions of dollars.">&#9432;</span>
+                </label>
+                <input type="number" id="currentFCFE" value="4000" class="rounded-lg">
+            </div>
+            <div class="input-group">
+                <label for="growthRate1">Growth Rate (Years 1-3, %):
+                    <span class="tooltip" title="Expected annual growth rate of FCFE for the first 3 years (as a percentage).">&#9432;</span>
+                </label>
+                <input type="number" id="growthRate1" value="15" class="rounded-lg">
+            </div>
+            <div class="input-group">
+                <label for="growthRate2">Growth Rate (Years 4-5, %):
+                    <span class="tooltip" title="Expected annual growth rate of FCFE for years 4 and 5 (as a percentage).">&#9432;</span>
+                </label>
+                <input type="number" id="growthRate2" value="8" class="rounded-lg">
+            </div>
+            <div class="input-group">
+                <label for="terminalGrowthRate">Terminal Growth Rate (%, after Year 5):
+                    <span class="tooltip" title="The perpetual growth rate assumed for FCFE after year 5, representing long-term stable growth (as a percentage).">&#9432;</span>
+                </label>
+                <input type="number" id="terminalGrowthRate" value="3" class="rounded-lg">
+            </div>
+            <div class="input-group col-span-1 md:col-span-2">
+                <label for="costOfEquity">Cost of Equity (Discount Rate, %):
+                    <span class="tooltip" title="The required rate of return for equity investors, used to discount future cash flows (as a percentage).">&#9432;</span>
+                </label>
+                <input type="number" id="costOfEquity" value="13.5" class="rounded-lg">
+            </div>
+            <div class="input-group col-span-1 md:col-span-2">
+                <label for="sharesOutstanding">Shares Outstanding (Millions):
+                    <span class="tooltip" title="The total number of company shares currently held by all shareholders, in millions.">&#9432;</span>
+                </label>
+                <input type="number" id="sharesOutstanding" value="3220" class="rounded-lg">
+            </div>
+        </div>
+
+        <button id="fetchDataBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105">
+            Fetch Data (Alpha Vantage)
+        </button>
+        <div id="loadingIndicator" class="loading-spinner hidden"></div>
+
+        <button id="calculateBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 mt-4">
+            Calculate DCF
+        </button>
+        <button id="useSampleDataBtn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 mt-4">
+            Use Sample Data
+        </button>
+
+        <div id="messageBox" class="message-box hidden"></div>
+
+        <div id="results" class="results-section hidden">
+            <h3 class="mt-8 mb-4">Projected & Discounted Cash Flows</h3>
+            <div class="results-grid" id="projectedFCFE">
+                <!-- Projected FCFE will be inserted here -->
+            </div>
+            <div class="chart-container">
+                <h4 class="text-lg font-semibold text-gray-700 mb-2">Projected FCFE (Millions $)</h4>
+                <div id="fcfChart" class="bar-chart"></div>
+                <div id="fcfChartLabels" class="chart-axis-label"></div>
+            </div>
+
+            <h3 class="mt-8 mb-4">Valuation Summary</h3>
+            <div class="results-grid">
+                <div class="result-item">
+                    <strong>Terminal Value (Millions $)</strong>
+                    <span id="terminalValue"></span>
+                </div>
+                <div class="result-item">
+                    <strong>PV of Terminal Value (Millions $)</strong>
+                    <span id="pvTerminalValue"></span>
+                </div>
+                <div class="result-item">
+                    <strong>Total Equity Value (Millions $)</strong>
+                    <span id="totalEquityValue"></span>
+                </div>
+                <div class="result-item">
+                    <strong>Intrinsic Value Per Share ($)</strong>
+                    <span id="intrinsicValuePerShare"></span>
+                </div>
+                <div class="result-item">
+                    <strong>Current Market Price ($)</strong>
+                    <span id="currentMarketPrice"></span>
+                </div>
+                <div class="result-item" id="valuationComparisonItem">
+                    <strong>Valuation Status</strong>
+                    <span id="valuationStatus"></span>
+                </div>
+            </div>
+
+            <h3 class="mt-8 mb-4">Sensitivity Analysis</h3>
+            <div class="sensitivity-container">
+                <p class="text-sm text-gray-600 mb-4">
+                    This table shows how the intrinsic value per share changes with different growth rates and discount rates. 
+                    The highlighted cell shows your current assumptions.
+                </p>
+                <div class="overflow-x-auto">
+                    <table id="sensitivityTable" class="w-full border-collapse border border-gray-300">
+                        <thead>
+                            <tr class="bg-gray-100">
+                                <th class="border border-gray-300 px-3 py-2 text-sm font-semibold">Growth Rate (%)</th>
+                                <th class="border border-gray-300 px-3 py-2 text-sm font-semibold">8%</th>
+                                <th class="border border-gray-300 px-3 py-2 text-sm font-semibold">9%</th>
+                                <th class="border border-gray-300 px-3 py-2 text-sm font-semibold">10%</th>
+                                <th class="border border-gray-300 px-3 py-2 text-sm font-semibold">11%</th>
+                                <th class="border border-gray-300 px-3 py-2 text-sm font-semibold">12%</th>
+                                <th class="border border-gray-300 px-3 py-2 text-sm font-semibold">13%</th>
+                                <th class="border border-gray-300 px-3 py-2 text-sm font-semibold">14%</th>
+                                <th class="border border-gray-300 px-3 py-2 text-sm font-semibold">15%</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sensitivityTableBody">
+                            <!-- Sensitivity analysis rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Glossary Section -->
+    <div class="container mt-8" style="background:#f8fafc; border:1px solid #e2e8f0;">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Glossary of Terms</h2>
+        <ul class="list-disc list-inside text-gray-700 space-y-2">
+            <li><strong>Stock Ticker Symbol:</strong> The unique abbreviation used to identify a publicly traded company (e.g., AAPL for Apple, TSLA for Tesla).</li>
+            <li><strong>Company Name:</strong> The full legal name of the company.</li>
+            <li><strong>FCFE (Free Cash Flow to Equity):</strong> The cash available to a company's equity shareholders after all expenses, reinvestment, and debt payments. Used as the basis for valuation in DCF models.</li>
+            <li><strong>Growth Rate (Years 1-3, 4-5):</strong> The expected annual percentage increase in FCFE for the specified years.</li>
+            <li><strong>Terminal Growth Rate:</strong> The assumed perpetual growth rate of FCFE after the explicit forecast period (usually a conservative, long-term rate).</li>
+            <li><strong>Cost of Equity (Discount Rate):</strong> The required rate of return for equity investors, used to discount future cash flows to present value.</li>
+            <li><strong>Shares Outstanding:</strong> The total number of company shares currently held by all shareholders, in millions.</li>
+            <li><strong>Current Market Price:</strong> The latest price at which the company's stock is trading in the market.</li>
+            <li><strong>Terminal Value:</strong> The present value of all future cash flows beyond the forecast period, assuming perpetual growth.</li>
+            <li><strong>Intrinsic Value Per Share:</strong> The calculated fair value of one share of the company, based on the DCF model.</li>
+            <li><strong>Overvalued/Undervalued/Fairly Valued:</strong> A comparison of the intrinsic value per share to the current market price to assess if the stock is expensive, cheap, or fairly priced.</li>
+        </ul>
+    </div>
+
+    <script>
+        // IMPORTANT: Replace 'YOUR_ALPHA_VANTAGE_API_KEY' with a real API key from Alpha Vantage.
+        // You can get a free API key from their website: https://www.alphavantage.co/
+        const ALPHA_VANTAGE_API_KEY = '9MP11C964HIFBIKG';
+
+        // Global variable to store current market price for comparison
+        let g_currentMarketPrice = 0;
+
+        document.getElementById('fetchDataBtn').addEventListener('click', fetchCompanyData);
+        document.getElementById('calculateBtn').addEventListener('click', calculateDCF);
+        document.getElementById('useSampleDataBtn').addEventListener('click', useSampleData);
+
+        async function fetchCompanyData() {
+            const tickerSymbol = document.getElementById('tickerSymbol').value.toUpperCase();
+            const messageBox = document.getElementById('messageBox');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            
+            messageBox.classList.add('hidden'); // Hide any previous messages
+            document.getElementById('results').classList.add('hidden'); // Hide previous results
+            loadingIndicator.classList.remove('hidden'); // Show loading spinner
+
+            if (!tickerSymbol) {
+                messageBox.textContent = 'Please enter a stock ticker symbol.';
+                messageBox.classList.remove('hidden');
+                loadingIndicator.classList.add('hidden');
+                return;
+            }
+
+            // Alpha Vantage API Endpoints
+            const overviewUrl = `https://www.alphavantage.co/query?function=OVERVIEW&symbol=${tickerSymbol}&apikey=${ALPHA_VANTAGE_API_KEY}`;
+            const cashFlowUrl = `https://www.alphavantage.co/query?function=CASH_FLOW&symbol=${tickerSymbol}&apikey=${ALPHA_VANTAGE_API_KEY}`;
+            const globalQuoteUrl = `https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol=${tickerSymbol}&apikey=${ALPHA_VANTAGE_API_KEY}`;
+
+            try {
+                const [overviewResponse, cashFlowResponse, globalQuoteResponse] = await Promise.all([
+                    fetch(overviewUrl),
+                    fetch(cashFlowUrl),
+                    fetch(globalQuoteUrl) // Fetch global quote data
+                ]);
+
+                const overviewData = await overviewResponse.json();
+                const cashFlowData = await cashFlowResponse.json();
+                const globalQuoteData = await globalQuoteResponse.json(); // Parse global quote data
+
+                // Show raw error messages for debugging
+                if (overviewData.Note || cashFlowData.Note || globalQuoteData.Note) {
+                    messageBox.textContent = 'API limit reached or too many requests.\n' +
+                        JSON.stringify({
+                            overviewNote: overviewData.Note,
+                            cashFlowNote: cashFlowData.Note,
+                            globalQuoteNote: globalQuoteData.Note
+                        }, null, 2);
+                    messageBox.classList.remove('hidden');
+                    loadingIndicator.classList.add('hidden');
+                    return;
+                }
+                if (overviewData["Error Message"] || cashFlowData["Error Message"] || globalQuoteData["Error Message"]) {
+                    messageBox.textContent = 'API error:\n' +
+                        JSON.stringify({
+                            overviewError: overviewData["Error Message"],
+                            cashFlowError: cashFlowData["Error Message"],
+                            globalQuoteError: globalQuoteData["Error Message"]
+                        }, null, 2);
+                    messageBox.classList.remove('hidden');
+                    loadingIndicator.classList.add('hidden');
+                    return;
+                }
+                // If the Global Quote is missing or empty, show the full response for debugging
+                if (!globalQuoteData['Global Quote'] || Object.keys(globalQuoteData['Global Quote']).length === 0) {
+                    messageBox.textContent = 'Could not fetch current market price.\nFull API response:\n' + JSON.stringify(globalQuoteData, null, 2);
+                    messageBox.classList.remove('hidden');
+                    loadingIndicator.classList.add('hidden');
+                    return;
+                }
+
+                // Extract Company Name
+                const companyName = overviewData.Name || 'N/A';
+                document.getElementById('companyName').value = companyName;
+
+                // Extract Shares Outstanding
+                const sharesOutstanding = parseFloat(overviewData.SharesOutstanding) / 1000000; // Convert to millions
+                document.getElementById('sharesOutstanding').value = sharesOutstanding.toFixed(0);
+
+                // Extract Current FCFE (simplified: Operating Cash Flow - Capital Expenditures from latest annual report)
+                let currentFCFE = 0;
+                if (cashFlowData.annualReports && cashFlowData.annualReports.length > 0) {
+                    const latestReport = cashFlowData.annualReports[0];
+                    const operatingCashflow = parseFloat(latestReport.operatingCashflow) || 0;
+                    const capitalExpenditures = parseFloat(latestReport.capitalExpenditures) || 0;
+                    currentFCFE = (operatingCashflow - capitalExpenditures) / 1000000; // Convert to millions
+                } else {
+                    messageBox.textContent = 'Could not find recent cash flow data for this company. Please ensure it is a publicly traded company with available financial reports.';
+                    messageBox.classList.remove('hidden');
+                }
+                document.getElementById('currentFCFE').value = currentFCFE.toFixed(0);
+
+                // Extract Current Market Price
+                if (globalQuoteData['Global Quote'] && globalQuoteData['Global Quote']['05. price']) {
+                    g_currentMarketPrice = parseFloat(globalQuoteData['Global Quote']['05. price']);
+                    document.getElementById('currentMarketPrice').textContent = g_currentMarketPrice.toFixed(2);
+                } else {
+                    document.getElementById('currentMarketPrice').textContent = 'N/A';
+                    g_currentMarketPrice = 0; // Reset if not found
+                    messageBox.textContent = 'Could not fetch current market price.\nFull API response:\n' + JSON.stringify(globalQuoteData, null, 2);
+                    messageBox.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                messageBox.textContent = 'An error occurred while fetching data.\n' + error.message;
+                messageBox.classList.remove('hidden');
+            } finally {
+                loadingIndicator.classList.add('hidden'); // Hide loading spinner
+            }
+        }
+
+        function calculateDCF() {
+            // Get input values (now potentially populated by fetchCompanyData)
+            const companyName = document.getElementById('companyName').value;
+            const currentFCFE = parseFloat(document.getElementById('currentFCFE').value);
+            const growthRate1 = parseFloat(document.getElementById('growthRate1').value) / 100; // Convert to decimal
+            const growthRate2 = parseFloat(document.getElementById('growthRate2').value) / 100; // Convert to decimal
+            const terminalGrowthRate = parseFloat(document.getElementById('terminalGrowthRate').value) / 100; // Convert to decimal
+            const costOfEquity = parseFloat(document.getElementById('costOfEquity').value) / 100; // Convert to decimal
+            const sharesOutstanding = parseFloat(document.getElementById('sharesOutstanding').value);
+
+            const messageBox = document.getElementById('messageBox');
+            messageBox.classList.add('hidden'); // Hide any previous messages
+
+            // Input validation
+            if (isNaN(currentFCFE) || isNaN(growthRate1) || isNaN(growthRate2) ||
+                isNaN(terminalGrowthRate) || isNaN(costOfEquity) || isNaN(sharesOutstanding) ||
+                currentFCFE <= 0 || sharesOutstanding <= 0) {
+                messageBox.textContent = 'Please ensure all financial inputs are valid positive numbers. Fetch data first or manually enter.';
+                messageBox.classList.remove('hidden');
+                document.getElementById('results').classList.add('hidden');
+                return;
+            }
+
+            if (terminalGrowthRate >= costOfEquity) {
+                messageBox.textContent = 'Terminal Growth Rate must be less than the Cost of Equity.';
+                messageBox.classList.remove('hidden');
+                document.getElementById('results').classList.add('hidden');
+                return;
+            }
+
+            // --- DCF Calculation Logic ---
+            let projectedFCFEs = [];
+            let discountedFCFEs = [];
+            let lastFCFE = currentFCFE;
+
+            // Project FCFE for explicit forecast period (5 years)
+            for (let i = 1; i <= 5; i++) {
+                let growthRate;
+                if (i <= 3) {
+                    growthRate = growthRate1;
+                } else {
+                    growthRate = growthRate2;
+                }
+
+                lastFCFE = lastFCFE * (1 + growthRate);
+                projectedFCFEs.push(lastFCFE);
+
+                // Calculate discount factor for the current year
+                const discountFactor = 1 / Math.pow((1 + costOfEquity), i);
+                discountedFCFEs.push(lastFCFE * discountFactor);
+            }
+
+            // Calculate Terminal Value (TV)
+            const fcfAtTerminalYear = projectedFCFEs[projectedFCFEs.length - 1]; // FCFE in Year 5
+            const terminalValue = (fcfAtTerminalYear * (1 + terminalGrowthRate)) / (costOfEquity - terminalGrowthRate);
+
+            // Calculate Present Value of Terminal Value (PV of TV)
+            const pvTerminalValue = terminalValue / Math.pow((1 + costOfEquity), 5); // Discount TV back to Year 0
+
+            // Sum all discounted FCFEs and PV of TV
+            const sumDiscountedFCFEs = discountedFCFEs.reduce((sum, val) => sum + val, 0);
+            const totalEquityValue = sumDiscountedFCFEs + pvTerminalValue;
+
+            // Calculate Intrinsic Value Per Share
+            const intrinsicValuePerShare = totalEquityValue / sharesOutstanding;
+
+            // --- Display Results ---
+            document.getElementById('results').classList.remove('hidden');
+
+            const projectedFCFEDiv = document.getElementById('projectedFCFE');
+            projectedFCFEDiv.innerHTML = ''; // Clear previous results
+            const fcfChart = document.getElementById('fcfChart');
+            fcfChart.innerHTML = ''; // Clear previous chart
+            const fcfChartLabels = document.getElementById('fcfChartLabels');
+            fcfChartLabels.innerHTML = ''; // Clear previous chart labels
+
+            let maxFCFE = 0;
+            projectedFCFEs.forEach((fcf, index) => {
+                if (fcf > maxFCFE) maxFCFE = fcf;
+
+                const year = index + 1;
+                const projectedItem = document.createElement('div');
+                projectedItem.className = 'result-item';
+                projectedItem.innerHTML = `
+                    <strong>Year ${year} Projected FCFE (Millions $)</strong>
+                    <span>${fcf.toFixed(2)}</span>
+                `;
+                projectedFCFEDiv.appendChild(projectedItem);
+
+                const discountedItem = document.createElement('div');
+                discountedItem.className = 'result-item';
+                discountedItem.innerHTML = `
+                    <strong>Year ${year} PV of FCFE (Millions $)</strong>
+                    <span>${discountedFCFEs[index].toFixed(2)}</span>
+                `;
+                projectedFCFEDiv.appendChild(discountedItem);
+
+                // Add bar to chart
+                const barHeight = (fcf / maxFCFE) * 100; // Percentage of max height
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = `${barHeight}%`;
+                bar.style.minHeight = '5%'; /* Ensure small bars are visible */
+                bar.textContent = fcf.toFixed(0); // Display value on bar
+                fcfChart.appendChild(bar);
+
+                const label = document.createElement('div');
+                label.textContent = `Y${year}`;
+                fcfChartLabels.appendChild(label);
+            });
+
+            document.getElementById('terminalValue').textContent = terminalValue.toFixed(2);
+            document.getElementById('pvTerminalValue').textContent = pvTerminalValue.toFixed(2);
+            document.getElementById('totalEquityValue').textContent = totalEquityValue.toFixed(2);
+            document.getElementById('intrinsicValuePerShare').textContent = intrinsicValuePerShare.toFixed(2);
+
+            // Display Current Market Price (already fetched by fetchDataBtn)
+            document.getElementById('currentMarketPrice').textContent = g_currentMarketPrice.toFixed(2);
+
+            // Valuation Comparison
+            const valuationStatusElement = document.getElementById('valuationStatus');
+            const valuationComparisonItem = document.getElementById('valuationComparisonItem');
+            valuationComparisonItem.classList.remove('overvalued', 'undervalued', 'fairly-valued'); // Clear previous classes
+
+            if (g_currentMarketPrice > 0) {
+                const percentageDifference = ((g_currentMarketPrice - intrinsicValuePerShare) / intrinsicValuePerShare) * 100;
+                let statusText = '';
+
+                if (percentageDifference > 10) { // Overvalued by more than 10%
+                    statusText = `Overvalued by ${percentageDifference.toFixed(2)}%`;
+                    valuationComparisonItem.classList.add('overvalued');
+                } else if (percentageDifference < -10) { // Undervalued by more than 10%
+                    statusText = `Undervalued by ${Math.abs(percentageDifference).toFixed(2)}%`;
+                    valuationComparisonItem.classList.add('undervalued');
+                } else { // Within +/- 10%
+                    statusText = `Fairly Valued (diff: ${percentageDifference.toFixed(2)}%)`;
+                    valuationComparisonItem.classList.add('fairly-valued');
+                }
+                valuationStatusElement.textContent = statusText;
+            } else {
+                valuationStatusElement.textContent = 'Market Price N/A for comparison';
+            }
+
+            // Generate sensitivity analysis
+            generateSensitivityAnalysis(currentFCFE, growthRate1, growthRate2, terminalGrowthRate, costOfEquity, sharesOutstanding);
+        }
+
+        function generateSensitivityAnalysis(currentFCFE, growthRate1, growthRate2, terminalGrowthRate, costOfEquity, sharesOutstanding) {
+            const sensitivityTableBody = document.getElementById('sensitivityTableBody');
+            sensitivityTableBody.innerHTML = ''; // Clear previous results
+
+            // Define ranges for sensitivity analysis
+            const growthRates = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+            const discountRates = [8, 9, 10, 11, 12, 13, 14, 15];
+
+            growthRates.forEach(growthRate => {
+                const row = document.createElement('tr');
+                
+                // Add growth rate label
+                const labelCell = document.createElement('td');
+                labelCell.className = 'border border-gray-300 px-3 py-2 text-sm font-semibold bg-gray-50';
+                labelCell.textContent = `${growthRate}%`;
+                row.appendChild(labelCell);
+
+                // Calculate intrinsic value for each discount rate
+                discountRates.forEach(discountRate => {
+                    const cell = document.createElement('td');
+                    cell.className = 'border border-gray-300 px-3 py-2 text-sm';
+
+                    // Calculate DCF with these parameters
+                    const intrinsicValue = calculateDCFForSensitivity(
+                        currentFCFE, 
+                        growthRate / 100, 
+                        growthRate / 100, // Use same growth rate for both periods
+                        terminalGrowthRate, 
+                        discountRate / 100, 
+                        sharesOutstanding
+                    );
+
+                    cell.textContent = intrinsicValue.toFixed(2);
+
+                    // Highlight current assumptions
+                    if (Math.abs(growthRate - (growthRate1 * 100)) < 0.1 && 
+                        Math.abs(discountRate - (costOfEquity * 100)) < 0.1) {
+                        cell.classList.add('current-assumption');
+                    }
+
+                    // Color code based on market price comparison
+                    if (g_currentMarketPrice > 0) {
+                        const percentageDifference = ((g_currentMarketPrice - intrinsicValue) / intrinsicValue) * 100;
+                        if (percentageDifference > 10) {
+                            cell.classList.add('overvalued-cell');
+                        } else if (percentageDifference < -10) {
+                            cell.classList.add('undervalued-cell');
+                        } else {
+                            cell.classList.add('fairly-valued-cell');
+                        }
+                    }
+
+                    row.appendChild(cell);
+                });
+
+                sensitivityTableBody.appendChild(row);
+            });
+        }
+
+        function calculateDCFForSensitivity(currentFCFE, growthRate1, growthRate2, terminalGrowthRate, costOfEquity, sharesOutstanding) {
+            let projectedFCFEs = [];
+            let discountedFCFEs = [];
+            let lastFCFE = currentFCFE;
+
+            // Project FCFE for explicit forecast period (5 years)
+            for (let i = 1; i <= 5; i++) {
+                let growthRate;
+                if (i <= 3) {
+                    growthRate = growthRate1;
+                } else {
+                    growthRate = growthRate2;
+                }
+
+                lastFCFE = lastFCFE * (1 + growthRate);
+                projectedFCFEs.push(lastFCFE);
+
+                // Calculate discount factor for the current year
+                const discountFactor = 1 / Math.pow((1 + costOfEquity), i);
+                discountedFCFEs.push(lastFCFE * discountFactor);
+            }
+
+            // Calculate Terminal Value (TV)
+            const fcfAtTerminalYear = projectedFCFEs[projectedFCFEs.length - 1];
+            const terminalValue = (fcfAtTerminalYear * (1 + terminalGrowthRate)) / (costOfEquity - terminalGrowthRate);
+
+            // Calculate Present Value of Terminal Value (PV of TV)
+            const pvTerminalValue = terminalValue / Math.pow((1 + costOfEquity), 5);
+
+            // Sum all discounted FCFEs and PV of TV
+            const sumDiscountedFCFEs = discountedFCFEs.reduce((sum, val) => sum + val, 0);
+            const totalEquityValue = sumDiscountedFCFEs + pvTerminalValue;
+
+            // Calculate Intrinsic Value Per Share
+            return totalEquityValue / sharesOutstanding;
+        }
+
+        function useSampleData() {
+            // Example: Apple Inc. (AAPL)
+            document.getElementById('tickerSymbol').value = 'AAPL';
+            document.getElementById('companyName').value = 'Apple Inc.';
+            document.getElementById('currentFCFE').value = 100000; // $100,000M
+            document.getElementById('growthRate1').value = 8;      // 8% for years 1-3
+            document.getElementById('growthRate2').value = 5;      // 5% for years 4-5
+            document.getElementById('terminalGrowthRate').value = 2.5; // 2.5% terminal
+            document.getElementById('costOfEquity').value = 9;     // 9% discount rate
+            document.getElementById('sharesOutstanding').value = 15600; // 15.6B shares
+            document.getElementById('currentMarketPrice').textContent = '210.00'; // Updated price
+            window.g_currentMarketPrice = 210.00; // Set global variable for calculations
+            document.getElementById('messageBox').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
