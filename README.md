@@ -1,3 +1,6 @@
+[![Node.js CI](https://github.com/GittyupMoe/my-ai-journey-/actions/workflows/nodejs.yml/badge.svg)](https://github.com/GittyupMoe/my-ai-journey-/actions/workflows/nodejs.yml)
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](fridge_chef_app/LICENSE)
+
 # My AI Journey - Project Collection
 
 Welcome to my AI learning journey! This repository contains various projects I've built while exploring AI, web development, and financial modeling.
