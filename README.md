@@ -2,7 +2,7 @@
 [![Python CI](https://github.com/GittyupMoe/my-ai-journey-/actions/workflows/python.yml/badge.svg)](https://github.com/GittyupMoe/my-ai-journey-/actions/workflows/python.yml)
 [![Security Check](https://github.com/GittyupMoe/my-ai-journey-/actions/workflows/security.yml/badge.svg)](https://github.com/GittyupMoe/my-ai-journey-/actions/workflows/security.yml)
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](fridge_chef_app/LICENSE)
-[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-blue)](https://gittyupmoe.github.io/my-ai-journey-/fridge_chef_app/)
+[![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-Live-blue)](https://gittyupmoe.github.io/my-ai-journey-/)
 [![Made with React](https://img.shields.io/badge/Made%20with-React-blue?logo=react)](https://reactjs.org/)
 [![Made with Python](https://img.shields.io/badge/Made%20with-Python-blue?logo=python)](https://python.org/)
 
