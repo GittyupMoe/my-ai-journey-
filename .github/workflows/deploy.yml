@@ -29,15 +29,16 @@ jobs:
         
     - name: Copy landing page and organize files
       run: |
-        # Copy the built React app to a subdirectory
+        # Copy the built React app assets to a subdirectory (excluding index.html)
         mkdir -p ./fridge_chef_app_built
-        cp -r fridge_chef_app/dist/* ./fridge_chef_app_built/
+        cp -r fridge_chef_app/dist/assets ./fridge_chef_app_built/
         
         # Copy the landing page to root
         cp index.html ./
         
         # Copy other project files
         cp dcf_model.html ./
+        cp fridge_chef_app.html ./
         cp server.py ./
         cp "control_flow_examples.py" ./
         cp "hello world.py" ./
