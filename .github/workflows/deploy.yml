@@ -27,8 +27,23 @@ jobs:
         cd fridge_chef_app
         npm run build
         
+    - name: Copy landing page and organize files
+      run: |
+        # Copy the built React app to a subdirectory
+        mkdir -p ./fridge_chef_app_built
+        cp -r fridge_chef_app/dist/* ./fridge_chef_app_built/
+        
+        # Copy the landing page to root
+        cp index.html ./
+        
+        # Copy other project files
+        cp dcf_model.html ./
+        cp server.py ./
+        cp "control_flow_examples.py" ./
+        cp "hello world.py" ./
+        
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./fridge_chef_app/dist 
+        publish_dir: ./ 
