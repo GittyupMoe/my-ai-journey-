@@ -39,6 +39,7 @@ jobs:
         # Copy other project files
         cp dcf_model.html ./
         cp fridge_chef_app.html ./
+        cp immediateconnect_pilot.html ./
         cp server.py ./
         cp "control_flow_examples.py" ./
         cp "hello world.py" ./

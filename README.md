@@ -24,7 +24,13 @@ A standalone HTML application for stock valuation using Discounted Cash Flow ana
 - **Features**: Real-time financial data, sensitivity analysis, interactive charts
 - **APIs**: Alpha Vantage for financial data
 
-### 3. Python Learning Projects
+### 3. ImmediateConnect Language Bridge Pilot
+A healthcare MVP strategy for improving communication with non-English-speaking patients.
+- **Location**: `immediateconnect_pilot.html` (root directory)
+- **Features**: Interactive charts, timeline visualization, MVP testing framework
+- **Focus**: Healthcare communication, patient safety, language barriers
+
+### 4. Python Learning Projects
 Various Python scripts and examples:
 - `server.py` - Simple web server
 - `control_flow_examples.py` - Python control flow demonstrations
@@ -59,6 +65,7 @@ python "hello world.py"
 my-ai-journey-/
 ├── fridge_chef_app/          # React cooking app
 ├── dcf_model.html           # Financial model
+├── immediateconnect_pilot.html # Healthcare MVP
 ├── server.py               # Python web server
 ├── control_flow_examples.py # Python examples
 ├── hello world.py          # Basic Python
